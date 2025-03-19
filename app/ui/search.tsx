@@ -23,11 +23,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
 			params.set('page', '1');
 
 			// Set or remove 'query' parameter
-			if (term) {
-				params.set('query', term);
-			} else {
-				params.delete('query');
-			}
+			term ? params.set('query', term) : params.delete('query');
 
 			replace(`?${params.toString()}`);
 		},
