@@ -1,20 +1,20 @@
 'use client';
 
-import { useState, useReducer } from 'react';
+import { useReducer } from 'react';
 import { Button } from '@/app/ui/button';
 
 interface Action {
-	type: 'increment' | 'decrement',
-	payload?: number
+	type: 'increment' | 'decrement';
+	payload?: number;
 }
 
 interface State {
-	count: number,
+	count: number;
 }
 
 const initialState: State = {
-	count: 0
-}
+	count: 0,
+};
 
 const countReducer = (state: State = initialState, action: Action) => {
 	switch (action.type) {
@@ -22,14 +22,14 @@ const countReducer = (state: State = initialState, action: Action) => {
 			return {
 				...state,
 				count: state.count + 1,
-			}
+			};
 		case 'decrement':
 			return {
 				...state,
 				count: state.count - 1,
-			}
+			};
 	}
-}
+};
 
 export default function Page() {
 	const [state, dispatch] = useReducer(countReducer, initialState);
@@ -41,8 +41,8 @@ export default function Page() {
 		<>
 			<div>Count: {state.count}</div>
 			<div className={'flex flex-direction-row'}>
-				<Button onClick={(e) => handleIncrement()}>+</Button>
-				<Button onClick={(e) => handleDecrement()}>-</Button>
+				<Button onClick={() => handleIncrement()}>+</Button>
+				<Button onClick={() => handleDecrement()}>-</Button>
 			</div>
 		</>
 	);
