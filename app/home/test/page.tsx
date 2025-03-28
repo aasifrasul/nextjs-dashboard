@@ -119,7 +119,7 @@ export default function Page() {
 	}, [searchTerm]);
 
 	// Handler for search input using useTransition
-	const handleSearchChange = (e) => {
+	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 
 		// Use startTransition to defer less critical updates
@@ -168,7 +168,7 @@ export default function Page() {
 					type="text"
 					placeholder="Filter products"
 					value={filterTerm}
-					onChange={(e) => setFilterTerm(e.target.value)}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilterTerm(e.target.value)}
 				/>
 				<ul>
 					{filteredProducts.map((product) => (
