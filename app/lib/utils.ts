@@ -56,18 +56,23 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
 	// another ellipsis, and the last page.
 	return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
 };
-export function dbounce<T extends any[]>(fn: (...args: T) => void, delay: number) {
+
+export function dbounce<T extends unknown[], U>(
+	fn: (...args: T) => void,
+	delay: number,
+): ((...args: T) => void) & { cancel: () => void } {
 	let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-	function debounced(this: any, ...args: T) {
+	const debounced = function (this: unknown, ...args: T) {
 		if (timeoutId !== null) {
 			clearTimeout(timeoutId);
 		}
+
 		timeoutId = setTimeout(() => {
 			fn.apply(this, args);
 			timeoutId = null;
 		}, delay);
-	}
+	} as ((...args: T) => void) & { cancel: () => void };
 
 	debounced.cancel = function () {
 		if (timeoutId !== null) {
