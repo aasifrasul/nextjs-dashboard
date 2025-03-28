@@ -129,7 +129,7 @@ export default function Page() {
 	};
 
 	// Rest of the component remains the same...
-	const [products, setProducts] = useState(CATEGORIES);
+	const [products] = useState(CATEGORIES);
 
 	const [filterTerm, setFilterTerm] = useState('');
 

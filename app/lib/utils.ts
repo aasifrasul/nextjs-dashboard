@@ -57,7 +57,7 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
 	return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
 };
 
-export function dbounce<T extends unknown[], U>(
+export function dbounce<T extends unknown[]>(
 	fn: (...args: T) => void,
 	delay: number,
 ): ((...args: T) => void) & { cancel: () => void } {
