@@ -19,6 +19,11 @@ const links = [
 		href: '/home/test',
 		icon: DocumentDuplicateIcon,
 	},
+	{
+		name: 'ABC',
+		href: '/home/abc',
+		icon: DocumentDuplicateIcon,
+	},
 ];
 
 export default function NavLinks() {
