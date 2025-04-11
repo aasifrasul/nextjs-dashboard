@@ -1,53 +1,35 @@
 'use client';
 
-import React, { createContext, useContext, useState, memo } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-interface MyContextValue {
-	value: string;
-	setValue: (newValue: string) => void;
-}
+import { useSearchParams } from '../../hooks/';
 
-const MyContext = createContext<MyContextValue | undefined>(undefined);
+const images = [
+	'amy-burns.png',
+	'balazs-orban.png',
+	'delba-de-oliveira.png',
+	'evil-rabbit.png',
+	'lee-robinson.png',
+	'michael-novotny.png',
+];
 
-interface Props {
-	value: string;
-}
+export default function ImageGallery() {
+	const { searchParams, updateParams } = useSearchParams();
+	const currentId = Number(searchParams.get('id')) || 0;
 
-const MemoizedConsumer = memo<Props>(({ value }) => {
-	console.log('MemoizedConsumer rendered');
-	return <div>Context Value: {value}</div>;
-});
+	const findNextId = (num: number): number =>
+		(num + currentId + images.length) % images.length;
 
-const RegularConsumer: React.FC<Props> = ({ value }) => {
-	console.log('RegularConsumer rendered');
-	return <div>Context Value: {value}</div>;
-};
-
-const Parent: React.FC = () => {
-	const [count, setCount] = useState(0);
-	const [contextValue, setContextValue] = useState<string>('Initial Value');
-
-	const context: MyContextValue = {
-		value: contextValue,
-		setValue: setContextValue,
+	const handleGalleryNavigation = (num: number) => {
+		const nextId = findNextId(num);
+		updateParams({ id: nextId.toString() });
 	};
 
 	return (
-		<MyContext.Provider value={context}>
-			<button onClick={() => setCount(count + 1)}>
-				Increment Count (No Context Change)
-			</button>
-			<button onClick={() => setContextValue(Math.random().toString())}>
-				Change Context Value
-			</button>
-
-			{/* Passing context value as a prop */}
-			<MemoizedConsumer value={contextValue} />
-
-			{/* Directly consuming context */}
-			<RegularConsumer value={useContext(MyContext)?.value || ''} />
-		</MyContext.Provider>
+		<div className="main-container">
+			<span onClick={() => handleGalleryNavigation(-1)}>{'<'}</span>
+			<img src={`/customers/${images[currentId]}`} />
+			<span onClick={() => handleGalleryNavigation(1)}>{'>'}</span>
+		</div>
 	);
-};
-
-export default Parent;
+}
