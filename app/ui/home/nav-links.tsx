@@ -1,6 +1,6 @@
 'use client';
 
-import { UserGroupIcon, HomeIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
@@ -17,6 +17,16 @@ const links = [
 	{
 		name: 'Test',
 		href: '/home/test',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'ImageGallery',
+		href: '/home/imageGallery',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'AutoComplete',
+		href: '/home/autoComplete',
 		icon: DocumentDuplicateIcon,
 	},
 ];
