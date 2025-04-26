@@ -20,8 +20,13 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
-		name: 'ABC',
-		href: '/home/abc',
+		name: 'ImageGallery',
+		href: '/home/imageGallery',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'AutoComplete',
+		href: '/home/autoComplete',
 		icon: DocumentDuplicateIcon,
 	},
 ];

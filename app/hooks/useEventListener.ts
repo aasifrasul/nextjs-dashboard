@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useRef, useCallback } from 'react';
 import { createLogger, LogLevel, Logger } from '../lib/Logger';
 import { ErrorHandlingOptions, Options, Target, EventMap } from './types';

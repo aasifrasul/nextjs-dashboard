@@ -1,85 +1,60 @@
 'use client';
 
-import { ChangeEvent, useState, useTransition, useDeferredValue, useMemo } from 'react';
+import React from 'react';
+import { isNumber } from 'util';
 
-import CATEGORIES from './data.json';
+/**
+ * you are given an array of strings representing 
+ * book titles. Sort the titles alphabetically, 
+ * but ignore the articles "a", "an", and "the" 
+ * at the beginning of the titles when comparing them. 
+ * Example: Input:["The Lord of the Rings", 
+ * "A Game of Thrones", "Ancillary Justice", "1984"]
+ 
+*/
+const ignoreList = ['a', 'an', 'the'];
+export default function App() {
+	const [books, setBooks] = React.useState([
+		'The Lord of the Rings',
+		'A Game of Thrones',
+		'Ancillary Justice',
+		'1984',
+	]);
+	const hash = React.useRef<Record<string, string[]>>({});
 
-// Move large list outside of the component to prevent re-creation
-const LARGE_LIST = Array.from({ length: 10000 }, (_, i) => `Item ${i + 1}`);
-
-export default function Page() {
-	// State for search input
-	const [searchTerm, setSearchTerm] = useState('');
-
-	// useTransition example
-	const [isPending, startTransition] = useTransition();
-
-	// Use useMemo to memoize filtered list
-	const filteredList = useMemo(() => {
-		return LARGE_LIST.filter((item) =>
-			item.toLowerCase().includes(searchTerm.toLowerCase()),
-		);
-	}, [searchTerm]);
-
-	// Handler for search input using useTransition
-	const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-
-		// Use startTransition to defer less critical updates
-		startTransition(() => {
-			setSearchTerm(value);
+	React.useEffect(() => {
+		books.forEach((item, index) => {
+			hash.current[item] = item.split(' ');
 		});
-	};
+		const sortedBooks = books.sort((a: any, b: any): any => {
+			const tempA: any[] = hash.current[a];
+			const tempB: any[] = hash.current[b];
+			console.log(tempA);
+			console.log(tempB);
 
-	const [products] = useState(CATEGORIES);
-	const [filterTerm, setFilterTerm] = useState('');
-	const deferredFilterTerm = useDeferredValue(filterTerm);
+			const compareA: any = ignoreList.includes(tempA[0].toLowerCase())
+				? tempA[1]
+				: tempA[0];
+			const compareB: any = ignoreList.includes(tempB[0].toLowerCase())
+				? tempB[1]
+				: tempB[0];
 
-	const filteredProducts = useMemo(() => {
-		return products.filter((product) =>
-			product.name.toLowerCase().includes(deferredFilterTerm.toLowerCase()),
-		);
-	}, [products, deferredFilterTerm]);
+			if (Number.isInteger(compareA) && Number.isInteger(compareB)) {
+				return compareA - compareB;
+			} else if (Number.isInteger(compareA)) {
+				return 1;
+			} else {
+				return compareA.charCodeAt(0) - compareB.charCodeAt(0);
+			}
+		});
+		console.log(`books`, books);
+		console.log(`sortedBooks`, sortedBooks);
+	}, []);
 
 	return (
-		<div>
-			<h2>Performance Hooks Demo</h2>
-
-			{/* useTransition Example */}
-			<div>
-				<h3>useTransition Example</h3>
-				<input
-					type="text"
-					placeholder="Search large list"
-					onChange={handleSearchChange}
-				/>
-				{isPending && <p>Loading...</p>}
-				<ul>
-					{filteredList.slice(0, 10).map((item, index) => (
-						<li key={index}>{item}</li>
-					))}
-				</ul>
-			</div>
-
-			{/* useDeferredValue Example */}
-			<div>
-				<h3>useDeferredValue Example</h3>
-				<input
-					type="text"
-					placeholder="Filter products"
-					value={filterTerm}
-					onChange={(e: ChangeEvent<HTMLInputElement>) =>
-						setFilterTerm(e.target.value)
-					}
-				/>
-				<ul>
-					{filteredProducts.map((product) => (
-						<li key={product.id}>
-							{product.name} - {product.category}
-						</li>
-					))}
-				</ul>
-			</div>
+		<div className="App">
+			<h1>Hello CodeSandbox</h1>
+			<h2>Start editing to see some magic happen!</h2>
 		</div>
 	);
 }

@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect, useCallback } from 'react';
 
 import { useEventListener } from '.';
@@ -32,10 +33,9 @@ export function useSearchParams() {
 
 	function handlePopState(event: PopStateEvent) {
 		// Get params from event state if available, otherwise from URL
-		const newParams = event.state?.searchParams
-			? new URLSearchParams(event.state.searchParams)
-			: new URLSearchParams(window.location.search);
-
+		const newParams = new URLSearchParams(
+			event.state?.searchParams || window.location.search,
+		);
 		setSearchParamsState(newParams);
 	}
 
