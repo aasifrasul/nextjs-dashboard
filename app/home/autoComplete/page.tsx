@@ -118,6 +118,17 @@ export default function AutoComplete() {
 		}
 	}, [isOutsideClick]);
 
+	const handlePageReload = (e: any) => {
+		console.log('page reloaded on event', e);
+	};
+
+	useEffect(() => {
+		window.addEventListener('beforeunload', handlePageReload);
+		return () => {
+			window.removeEventListener('beforeunload', handlePageReload);
+		};
+	});
+
 	return (
 		<>
 			<div>

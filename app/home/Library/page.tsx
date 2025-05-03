@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 
-import LibraryProvider, { useLibrary } from '@/app/stores/LibraryProvider';
+import LibraryProvider, { useLibrary } from './LibraryProvider';
 
 import { Button } from '@/app/ui/button';
 
@@ -15,43 +15,32 @@ interface Book {
 function LibraryContainer() {
 	const {
 		books,
+		filteredBooks,
 		searchText,
-		editingBook,
-		setSearhText,
 		name,
 		setName,
 		author,
 		setAuthor,
-		filterBooks,
+		setSearchText,
 		handleSubmit,
 		handleIssueBook,
 		handleDeleteBook,
 		handleEditBook,
 	} = useLibrary();
 
-	const handleNameChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const text = e.target.value || '';
-		setName(text);
-	}, []);
-
-	const handleAuthorChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const text = e.target.value || '';
-		setAuthor(text);
-	}, []);
-
-	const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const text = e.target.value || '';
-
-		setSearhText(text);
-		filterBooks(text.toLowerCase());
-	};
+	const displayBooks = searchText.length > 0 ? filteredBooks : books;
 
 	return (
 		<div>
 			<div className="flex align-tem-center">
 				<div>
 					<label htmlFor="name">Name</label>
-					<input type="text" name="name" value={name} onChange={handleNameChange} />
+					<input
+						type="text"
+						name="name"
+						value={name}
+						onChange={(e) => setName(e.target.value || '')}
+					/>
 				</div>
 				<div>
 					<label htmlFor="author">Author</label>
@@ -59,14 +48,11 @@ function LibraryContainer() {
 						type="text"
 						name="author"
 						value={author}
-						onChange={handleAuthorChange}
+						onChange={(e) => setAuthor(e.target.value || '')}
 					/>
 				</div>
 				<div>
-					<Button
-						className="bg-blue-300"
-						onClick={handleSubmit}
-					>
+					<Button className="bg-blue-300" onClick={handleSubmit}>
 						Submit
 					</Button>
 				</div>
@@ -79,13 +65,13 @@ function LibraryContainer() {
 					type="text"
 					name="searchText"
 					value={searchText}
-					onChange={handleSearchTextChange}
+					onChange={(e) => setSearchText(e.target.value || '')}
 				/>
 			</div>
 			<div>
 				<ul>
-					{books?.length > 0 ? (
-						books.map(({ id, name, author, issued }) => {
+					{displayBooks?.length > 0 ? (
+						displayBooks.map(({ id, name, author, issued }) => {
 							return (
 								<li key={id}>
 									{name} {author} {issued ? 'UnAvailable' : 'Available'}

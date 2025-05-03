@@ -11,7 +11,7 @@ interface Book {
 	issued: boolean;
 }
 
-interface LibraryContextType {
+interface InitialState {
 	books: Book[];
 	name: string;
 	setName: (name: string) => void;
@@ -19,7 +19,7 @@ interface LibraryContextType {
 	setAuthor: (author: string) => void;
 	searchText: string;
 	setSearhText: (searchText: string) => void;
-	editingBook: Book;
+	editingBook: Book | null;
 	handleSubmit: () => void;
 	handleEditBook: (id: number) => void;
 	handleDeleteBook: (id: number) => void;
@@ -27,24 +27,26 @@ interface LibraryContextType {
 	filterBooks: (text: string) => void;
 }
 
-const LibraryContext = React.createContext<LibraryContextType>({
+const initialState: InitialState = {
 	books: [],
 	name: '',
 	author: '',
 	searchText: '',
-	editingBook: {},
+	editingBook: null,
 	setName: () => {},
 	setAuthor: () => {},
 	setSearhText: () => {},
 	handleSubmit: () => {},
-	handleEditBook: (id) => {},
-	handleDeleteBook: (id) => {},
-	handleIssueBook: (id) => {},
-	filterBooks: (text) => {},
-});
+	handleEditBook: (id: number) => {},
+	handleDeleteBook: (id: number) => {},
+	handleIssueBook: (id: number) => {},
+	filterBooks: (text: string) => {},
+};
+
+const libraryContext = React.createContext<InitialState>(initialState);
 
 export function useLibrary() {
-	const context = React.useContext(LibraryContext);
+	const context = React.useContext(libraryContext);
 
 	if (!context) {
 		throw new Error('Please use inside LibraryProvider');
@@ -68,13 +70,10 @@ export default function LibraryProivder({ children }: Props) {
 			const index = books.findIndex((book) => book.id === editingBook?.id);
 			if (index < 0) return;
 			const oldBook = books[index];
-			setFilteredBooks((prevBooks) => {
-				prevBooks.splice(index, 1);
-				return [...prevBooks, { ...oldBook, name, author }];
-			});
+			
 			setBooks((prevBooks) => {
-				prevBooks.splice(index, 1);
-				return [...prevBooks, { ...oldBook, name, author }];
+				prevBooks[index] = { ...oldBook, name, author };
+				return [...prevBooks];
 			});
 		} else {
 			const newBook = {
@@ -84,8 +83,9 @@ export default function LibraryProivder({ children }: Props) {
 				issued: false,
 			};
 
-			setBooks((prevBooks) => [...prevBooks, newBook]);
-			setFilteredBooks((prevBooks) => [...prevBooks, newBook]);
+			setBooks((prevBooks) => {
+				return [...prevBooks, newBook]
+			});
 		}
 
 		setName('');
@@ -105,31 +105,24 @@ export default function LibraryProivder({ children }: Props) {
 		setAuthor(author);
 	};
 
-	const handleDeleteBook = (id: number) => {
-		const index = books.findIndex((book) => book.id === id);
-		if (index < 0) return;
-		setFilteredBooks((prevBooks) => {
-			prevBooks.splice(index, 1);
-			return [...prevBooks];
-		});
+	const handleDeleteBook = React.useCallback((id: number) => {
 		setBooks((prevBooks) => {
-			prevBooks.splice(index, 1);
+			const index = prevBooks.findIndex((book) => book.id === id);
+			if (index >= 0) prevBooks.splice(index, 1);
 			return [...prevBooks];
 		});
-	};
+	}, []);
 
 	const handleIssueBook = (id: number) => {
 		const index = books.findIndex((book) => book.id === id);
 		if (index < 0) return;
-		const oldBook = books[index];
-		const issued = !oldBook.issued;
-		setFilteredBooks((prevBooks) => {
-			prevBooks.splice(index, 1);
-			return [...prevBooks, { ...oldBook, issued }];
-		});
+		
+		
 		setBooks((prevBooks) => {
-			prevBooks.splice(index, 1);
-			return [...prevBooks, { ...oldBook, issued }];
+			const oldBook = books[index];
+			const issued = !oldBook.issued;
+			prevBooks[index] = { ...oldBook, issued };
+			return [...prevBooks];
 		});
 	};
 
@@ -139,16 +132,19 @@ export default function LibraryProivder({ children }: Props) {
 			return;
 		}
 
-		setFilteredBooks((prevBooks) => {
-			const currentBooks = prevBooks.filter((book) => {
-				return (
-					book.name.toLowerCase().includes(text) ||
-					book.author.toLowerCase().includes(text)
-				);
-			});
-			return [...currentBooks];
+		const lowerCasedText = text.toLowerCase();
+		const newBooks = books.filter((book) => {
+			return (
+				book.name.toLowerCase().includes(lowerCasedText) ||
+				book.author.toLowerCase().includes(lowerCasedText)
+			);
 		});
+		setFilteredBooks(newBooks);
 	};
+
+	React.useEffect(() => {
+		filterBooks(searchText);
+	}, [books])
 
 	const isDisabled = name?.length <= 0 || author?.length <= 0;
 
@@ -168,7 +164,5 @@ export default function LibraryProivder({ children }: Props) {
 		handleIssueBook,
 	};
 
-	const { Provider } = LibraryContext;
-
-	return <Provider value={value}>{children}</Provider>;
+	return <libraryContext.Provider value={value}>{children}</libraryContext.Provider>;
 }
