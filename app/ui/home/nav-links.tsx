@@ -10,6 +10,11 @@ import clsx from 'clsx';
 const links = [
 	{ name: 'Home', href: '/home', icon: HomeIcon },
 	{
+		name: 'BattleShip',
+		href: '/home/battleShip',
+		icon: DocumentDuplicateIcon,
+	},
+	{
 		name: 'Auto Complete',
 		href: '/home/autoComplete',
 		icon: DocumentDuplicateIcon,
@@ -27,6 +32,11 @@ const links = [
 	{
 		name: 'Stop Watch',
 		href: '/home/stopWatch',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'Tic Tac Toe',
+		href: '/home/tictactoe',
 		icon: DocumentDuplicateIcon,
 	},
 	{

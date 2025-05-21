@@ -23,7 +23,7 @@ export function libraryReducer(state: InitialState, action: Action): InitialStat
 
 			return { ...state, books: [...state.books, payload] };
 
-		case 'SET_EDITING_BOOK':
+		case ActionType.SET_EDITING_BOOK:
 			return {
 				...state,
 				editingBook: action.payload,

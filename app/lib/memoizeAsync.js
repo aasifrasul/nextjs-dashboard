@@ -1,11 +1,12 @@
-/**
+import { createKey } from './keyGeneration';
+`
 Implement the memoize function which optimizes repeated calls to an asynchronous
  function by caching the results. The memoize function takes an asynchronous function
  (asynchronousFunction) as an argument. This function takes n arguments, where the last argument is a
  callback in the form of callback(error, result).
 The goal is that calling memoizedGetSomeData multiple times with the same arguments should trigger the
  callback with the same cached result, avoiding unnecessary expensive calls etc..
-*/
+`
 export const memoizeAsync = (function () {
 	const allCaches = new WeakMap();
 
@@ -31,7 +32,7 @@ export const memoizeAsync = (function () {
 			}
 
 			// Create a key from all arguments except the callback
-			const key = JSON.stringify(originalArgs);
+			const key = createKey(originalArgs);
 
 			// If we have a cached result, use it
 			if (cache.has(key)) {

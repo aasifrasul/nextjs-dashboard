@@ -1,5 +1,7 @@
 import React, { useEffect, useReducer, useCallback, createContext, useContext } from 'react';
 
+import { dbounce } from '@/app/lib/utils';
+
 import { Book, LibraryProivderProps, InitialState, LibraryContext } from './types';
 import { libraryReducer } from './libraryReducer';
 import * as actions from './ActionCreators';
@@ -99,9 +101,10 @@ export default function LibraryProvider({ children }: LibraryProivderProps) {
 
 	const contextValue: LibraryContext = {
 		...state,
+		books: (searchText.length > 0 ? filteredBooks : books) || [],
 		setName,
 		setAuthor,
-		setSearchText,
+		setSearchText: dbounce(setSearchText, 300),
 		handleSubmit,
 		handleEditBook,
 		handleDeleteBook,

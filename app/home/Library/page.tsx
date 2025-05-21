@@ -15,7 +15,6 @@ interface Book {
 function LibraryContainer() {
 	const {
 		books,
-		filteredBooks,
 		searchText,
 		name,
 		setName,
@@ -27,8 +26,6 @@ function LibraryContainer() {
 		handleDeleteBook,
 		handleEditBook,
 	} = useLibrary();
-
-	const displayBooks = searchText.length > 0 ? filteredBooks : books;
 
 	return (
 		<div>
@@ -70,8 +67,8 @@ function LibraryContainer() {
 			</div>
 			<div>
 				<ul>
-					{displayBooks?.length > 0 ? (
-						displayBooks.map(({ id, name, author, issued }) => {
+					{books?.length > 0 ? (
+						books.map(({ id, name, author, issued }) => {
 							return (
 								<li key={id}>
 									{name} {author} {issued ? 'UnAvailable' : 'Available'}

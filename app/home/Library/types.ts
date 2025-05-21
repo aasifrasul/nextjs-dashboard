@@ -37,7 +37,7 @@ export type Action =
 
 export interface InitialState {
 	books: Book[];
-	filteredBooks: Book[]; // Changed from optional to required, with empty array as default
+	filteredBooks?: Book[];
 	name: string;
 	author: string;
 	searchText: string;
