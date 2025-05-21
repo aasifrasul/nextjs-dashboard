@@ -8,13 +8,14 @@ export function createKey(value: any, seen: Set<any> = new Set()): string {
 	// Handle primitive types
 	if (value === null) return 'null';
 	if (value === undefined) return 'undefined';
-	if (typeof value !== 'object' && typeof value !== 'function') {
-		return `${typeof value}:${value}`;
-	}
 
 	// Handle functions - use their string representation
 	if (typeof value === 'function') {
 		return `function:${value.toString()}`;
+	}
+
+	if (typeof value !== 'object') {
+		return `${typeof value}:${value}`;
 	}
 
 	// Handle circular references
@@ -37,10 +38,7 @@ export function createKey(value: any, seen: Set<any> = new Set()): string {
 	//const objType = Object.getPrototypeOf(value).constructor.name;
 	const objType = Object.prototype.toString.call(value).slice(8, -1);
 	const properties = sortedKeys
-		.map((key) => {
-			const propValue = createKey(value[key], seen);
-			return `${key}:${propValue}`;
-		})
+		.map((key) => `${key}:${createKey(value[key], seen)}`)
 		.join(',');
 	return `${objType}:{${properties}}`;
 }

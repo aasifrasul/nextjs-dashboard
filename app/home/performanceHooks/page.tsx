@@ -16,9 +16,8 @@ export default function Page() {
 
 	// Use useMemo to memoize filtered list
 	const filteredList = useMemo(() => {
-		return LARGE_LIST.filter((item) =>
-			item.toLowerCase().includes(searchTerm.toLowerCase()),
-		);
+		const searchTermLowerCased = searchTerm.toLowerCase();
+		return LARGE_LIST.filter((item) => item.toLowerCase().includes(searchTermLowerCased));
 	}, [searchTerm]);
 
 	// Handler for search input using useTransition

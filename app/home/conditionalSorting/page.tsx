@@ -1,17 +1,15 @@
 'use client';
 
 import React from 'react';
-import { isNumber } from 'util';
 
 /**
- * you are given an array of strings representing 
- * book titles. Sort the titles alphabetically, 
- * but ignore the articles "a", "an", and "the" 
- * at the beginning of the titles when comparing them. 
- * Example: Input:["The Lord of the Rings", 
+ * you are given an array of strings representing
+ * book titles. Sort the titles alphabetically,
+ * but ignore the articles "a", "an", and "the"
+ * at the beginning of the titles when comparing them.
+ * Example: Input:["The Lord of the Rings",
  * "A Game of Thrones", "Ancillary Justice", "1984"]
- 
-*/
+ */
 const ignoreList = ['a', 'an', 'the'];
 export default function App() {
 	const [books, setBooks] = React.useState([

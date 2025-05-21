@@ -47,11 +47,7 @@ export const useClickOutside = <T extends ElementRef = ElementRef>(
 		[setIsOutsideClick],
 	);
 
-	useEventListener(
-		eventType,
-		handleClickOutside,
-		typeof document !== undefined ? document : null,
-	);
+	useEventListener(eventType, handleClickOutside, document);
 
 	return { isOutsideClick, outsideRef };
 };

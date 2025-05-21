@@ -45,7 +45,6 @@ export default function AutoComplete() {
 
 		try {
 			setIsLoading(true);
-			updateParams({ searchText });
 
 			if (searchText in searchCacheRef.current) {
 				setItems(() => {
@@ -54,6 +53,8 @@ export default function AutoComplete() {
 				});
 				return;
 			}
+
+			updateParams({ searchText });
 
 			const result = await fetch(`${url}${searchText}`);
 			const data: Item[] = await result.json();
@@ -70,11 +71,11 @@ export default function AutoComplete() {
 
 	const handleChange = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
-			const searchText = e.target.value;
+			const searchText = e.target.value || '';
 			setText(searchText);
 
 			if (searchText?.length > 0) {
-				debouncedFetchData(searchText);
+				debouncedFetchData(searchText.toLowerCase());
 			} else {
 				updateParams({ searchText: '' });
 				setItems([]);
@@ -116,6 +117,17 @@ export default function AutoComplete() {
 			closeModal();
 		}
 	}, [isOutsideClick]);
+
+	const handlePageReload = (e: any) => {
+		console.log('page reloaded on event', e);
+	};
+
+	useEffect(() => {
+		window.addEventListener('beforeunload', handlePageReload);
+		return () => {
+			window.removeEventListener('beforeunload', handlePageReload);
+		};
+	});
 
 	return (
 		<>

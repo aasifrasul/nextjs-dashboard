@@ -10,23 +10,48 @@ import clsx from 'clsx';
 const links = [
 	{ name: 'Home', href: '/home', icon: HomeIcon },
 	{
+		name: 'BattleShip',
+		href: '/home/battleShip',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'Auto Complete',
+		href: '/home/autoComplete',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'Library',
+		href: '/home/Library',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'Image Gallery',
+		href: '/home/imageGallery',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'Stop Watch',
+		href: '/home/stopWatch',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'Tic Tac Toe',
+		href: '/home/tictactoe',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'Performance Hooks',
+		href: '/home/performanceHooks',
+		icon: DocumentDuplicateIcon,
+	},
+	{
 		name: 'Counter',
 		href: '/home/counter',
 		icon: DocumentDuplicateIcon,
 	},
 	{
-		name: 'Test',
-		href: '/home/test',
-		icon: DocumentDuplicateIcon,
-	},
-	{
-		name: 'ImageGallery',
-		href: '/home/imageGallery',
-		icon: DocumentDuplicateIcon,
-	},
-	{
-		name: 'AutoComplete',
-		href: '/home/autoComplete',
+		name: 'Conditional Sorting',
+		href: '/home/conditionalSorting',
 		icon: DocumentDuplicateIcon,
 	},
 ];

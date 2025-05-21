@@ -12,7 +12,7 @@ export const memoize = (function () {
 
 	return function outer<T = any, R = any>(fn: MemoizedFunc<T, R>): MemoizedFunc<T, R> {
 		if (!allCaches.has(fn)) {
-			allCaches.set(fn, Object.create(null));
+			allCaches.set(fn, new Map());
 		}
 
 		const functionCache = allCaches.get(fn)!;
@@ -21,13 +21,12 @@ export const memoize = (function () {
 		return function inner(this: any, ...args: T[]): R {
 			const key = createKey(args);
 
-			if (key in functionCache) {
-				return functionCache[key];
+			if (!functionCache.has(key)) {
+				const result = fn.apply(this, args);
+				functionCache.set(key, result);
 			}
 
-			const result = fn.apply(this, args);
-			functionCache[key] = result;
-			return result;
+			return functionCache.get(key);
 		};
 	};
 })();

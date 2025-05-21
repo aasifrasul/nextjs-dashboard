@@ -11,20 +11,6 @@ export function useSearchParams() {
 
 	useEventListener('popstate', handlePopState, window);
 
-	// Wrapper for setSearchParams that accepts both direct value and callback
-	const setSearchParams = useCallback(
-		(
-			newParamsOrUpdater: URLSearchParams | ((prev: URLSearchParams) => URLSearchParams),
-		) => {
-			if (typeof newParamsOrUpdater === 'function') {
-				setSearchParamsState((prev) => newParamsOrUpdater(prev));
-			} else {
-				setSearchParamsState(newParamsOrUpdater);
-			}
-		},
-		[],
-	);
-
 	// Update URL whenever searchParams changes
 	useEffect(() => {
 		// Store the params string in the state object
@@ -38,6 +24,20 @@ export function useSearchParams() {
 		);
 		setSearchParamsState(newParams);
 	}
+
+	// Wrapper for setSearchParams that accepts both direct value and callback
+	const setSearchParams = useCallback(
+		(
+			newParamsOrUpdater: URLSearchParams | ((prev: URLSearchParams) => URLSearchParams),
+		) => {
+			if (typeof newParamsOrUpdater === 'function') {
+				setSearchParamsState((prev) => newParamsOrUpdater(prev));
+			} else {
+				setSearchParamsState(newParamsOrUpdater);
+			}
+		},
+		[],
+	);
 
 	// Convenience method to update parameters
 	const updateParams = useCallback(
