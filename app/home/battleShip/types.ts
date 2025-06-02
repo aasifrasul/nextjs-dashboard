@@ -29,7 +29,7 @@ export enum ShipType {
 
 // Ship configuration
 export interface ShipConfig {
-	id: string,
+	id: string;
 	type: ShipType;
 	position: { x: number; y: number }; // Starting position
 	orientation: Orientation;

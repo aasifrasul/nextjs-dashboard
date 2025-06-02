@@ -70,7 +70,7 @@ export default function LibraryProivder({ children }: Props) {
 			const index = books.findIndex((book) => book.id === editingBook?.id);
 			if (index < 0) return;
 			const oldBook = books[index];
-			
+
 			setBooks((prevBooks) => {
 				prevBooks[index] = { ...oldBook, name, author };
 				return [...prevBooks];
@@ -84,7 +84,7 @@ export default function LibraryProivder({ children }: Props) {
 			};
 
 			setBooks((prevBooks) => {
-				return [...prevBooks, newBook]
+				return [...prevBooks, newBook];
 			});
 		}
 
@@ -116,8 +116,7 @@ export default function LibraryProivder({ children }: Props) {
 	const handleIssueBook = (id: number) => {
 		const index = books.findIndex((book) => book.id === id);
 		if (index < 0) return;
-		
-		
+
 		setBooks((prevBooks) => {
 			const oldBook = books[index];
 			const issued = !oldBook.issued;
@@ -144,7 +143,7 @@ export default function LibraryProivder({ children }: Props) {
 
 	React.useEffect(() => {
 		filterBooks(searchText);
-	}, [books])
+	}, [books]);
 
 	const isDisabled = name?.length <= 0 || author?.length <= 0;
 

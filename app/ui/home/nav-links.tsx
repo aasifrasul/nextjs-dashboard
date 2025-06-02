@@ -15,6 +15,11 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
+		name: 'Drag & Drop',
+		href: '/home/drag-drop',
+		icon: DocumentDuplicateIcon,
+	},
+	{
 		name: 'Auto Complete',
 		href: '/home/autoComplete',
 		icon: DocumentDuplicateIcon,
