@@ -1,49 +1,46 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Player, ShipType } from './types';
-import { GamePlay, generateRandomNumberUnderNum, BOARD_SIZE, GamePlayState } from './GamePlay';
+
+import { getShipSize, useBattleshipStore } from '../../stores/battleshipStore';
+
+import { ShipType } from './types';
+
 import styles from './index.module.css';
 
-export default function BattleShip() {
-	// State to store the game state
-	const [gameState, setGameState] = useState<GamePlayState | null>(null);
+export default function BattleshipWith() {
+	const {
+		currentState,
+		currentPlayer,
+		players,
+		setupPhase,
+		placeShip,
+		fireShot,
+		selectShipType,
+		toggleOrientation,
+		resetGame,
+		getAvailableShips,
+		canPlaceShipAt,
+		getWinner,
+	} = useBattleshipStore();
+
 	const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
 
-	// Get the singleton instance of GamePlay
-	const gameplay = GamePlay.getInstance();
-
-	// Subscribe to changes in the GamePlay state
-	useEffect(() => {
-		// Initialize with current state
-		setGameState(gameplay.getState());
-
-		// Subscribe to future updates
-		const unsubscribe = gameplay.subscribe((newState) => {
-			setGameState(newState);
-		});
-
-		// Cleanup subscription when component unmounts
-		return () => {
-			unsubscribe();
-		};
-	}, []);
-
-	// Handle loading state
-	if (!gameState) {
-		return <div>Loading...</div>;
-	}
-
 	const handleCellClick = (player: Player, x: number, y: number) => {
-		if (gameState.currentState === 'setup' && player === gameState.currentPlayer) {
-			// In setup phase, clicking a cell attempts to place a ship
-			gameplay.placeShip(player, x, y);
-		} else if (
-			gameState.currentState === 'playing' &&
-			player !== gameState.currentPlayer
-		) {
-			// In playing phase, clicking a cell fires a shot at the opponent's board
-			gameplay.fireShot(gameState.currentPlayer, x, y);
+		if (currentState === 'setup' && player === currentPlayer) {
+			placeShip(player, x, y);
+		} else if (currentState === 'playing' && player !== currentPlayer) {
+			fireShot(currentPlayer, x, y);
 		}
+	};
+
+	const isShipPlacementPreview = (player: Player, x: number, y: number) => {
+		return (
+			currentState === 'setup' &&
+			player === currentPlayer &&
+			hoveredCell?.x === x &&
+			hoveredCell?.y === y &&
+			canPlaceShipAt(player, x, y)
+		);
 	};
 
 	const handleCellHover = (x: number, y: number) => {
@@ -55,46 +52,24 @@ export default function BattleShip() {
 	};
 
 	const handleToggleOrientation = () => {
-		gameplay.toggleOrientation();
+		toggleOrientation();
 	};
 
 	const handleSelectShipType = (shipType: ShipType) => {
-		gameplay.selectShipType(shipType);
+		selectShipType(shipType);
 	};
 
 	const handleReset = () => {
-		gameplay.resetGame();
-	};
-
-	const isShipPlacementPreview = (player: Player, x: number, y: number) => {
-		if (
-			gameState.currentState !== 'setup' ||
-			player !== gameState.currentPlayer ||
-			!hoveredCell ||
-			hoveredCell.x !== x ||
-			hoveredCell.y !== y ||
-			!gameState.setupPhase.currentShipType
-		) {
-			return false;
-		}
-
-		return gameplay.canPlaceShip(
-			player,
-			x,
-			y,
-			gameState.setupPhase.currentShipType,
-			gameState.setupPhase.currentOrientation,
-		);
+		resetGame();
 	};
 
 	// Determine what boards to show based on game state
 	const renderSetupControls = () => {
-		if (gameState.currentState !== 'setup') return null;
+		if (currentState !== 'setup') return null;
 
-		const currentPlayer = gameState.currentPlayer;
-		const currentShipType = gameState.setupPhase.currentShipType;
-		const orientation = gameState.setupPhase.currentOrientation;
-		const availableShips = gameplay.getAvailableShips(currentPlayer);
+		const currentShipType = setupPhase.currentShipType;
+		const orientation = setupPhase.currentOrientation;
+		const availableShips = getAvailableShips(currentPlayer);
 
 		return (
 			<div className={styles.setupControls}>
@@ -113,7 +88,7 @@ export default function BattleShip() {
 								className={`${styles.shipButton} ${currentShipType === shipType ? styles.selected : ''}`}
 								onClick={() => handleSelectShipType(shipType)}
 							>
-								{ShipType[shipType]} ({gameplay.getShipSize(shipType)})
+								{ShipType[shipType]} ({getShipSize(shipType)})
 							</button>
 						))}
 					</div>
@@ -123,16 +98,12 @@ export default function BattleShip() {
 	};
 
 	const renderGameStatus = () => {
-		if (gameState.currentState === 'setup') {
-			return <div className={styles.gameStatus}>{gameplay.getSetupStatus()}</div>;
-		} else if (gameState.currentState === 'playing') {
-			return (
-				<div className={styles.gameStatus}>
-					Current Player: {gameState.currentPlayer}
-				</div>
-			);
-		} else if (gameState.currentState === 'gameover') {
-			const winner = gameplay.getWinner();
+		if (currentState === 'setup') {
+			return <div className={styles.gameStatus}>{currentState}</div>;
+		} else if (currentState === 'playing') {
+			return <div className={styles.gameStatus}>Current Player: {currentPlayer}</div>;
+		} else if (currentState === 'gameover') {
+			const winner = getWinner();
 			return <div className={styles.gameStatus}>Game Over! Player {winner} wins!</div>;
 		}
 
@@ -143,12 +114,12 @@ export default function BattleShip() {
 		// In setup phase, only show the current player's board
 		// In playing phase, show both boards but with different views
 		const grid = showShips
-			? gameState.players[player].board.grid
-			: gameState.players[player === 1 ? 2 : 1].trackingGrid;
+			? players[player!].board.grid
+			: players[player === 1 ? 2 : 1].trackingGrid;
 
-		const isCurrentPlayerBoard = player === gameState.currentPlayer;
-		const isSetupPhase = gameState.currentState === 'setup';
-		const isPlayingPhase = gameState.currentState === 'playing';
+		const isCurrentPlayerBoard = player === currentPlayer;
+		const isSetupPhase = currentState === 'setup';
+		const isPlayingPhase = currentState === 'playing';
 
 		// Determine if this board is interactive in the current phase
 		const isInteractive =
@@ -169,11 +140,10 @@ export default function BattleShip() {
 								<button
 									key={x}
 									className={`
-                    ${styles.cell} 
-                    ${styles[cell]} 
-                    ${isPreview ? styles.preview : ''}
-                    ${isInteractive ? styles.interactive : ''}
-                  `}
+										${styles.cell} 
+										${isPreview ? styles.preview : ''}
+										${isInteractive ? styles.interactive : ''}
+									`}
 									onClick={() =>
 										isInteractive && handleCellClick(player, x, y)
 									}
@@ -210,7 +180,7 @@ export default function BattleShip() {
 			<div className={styles.gameContainer}>
 				<div className={styles.playerSection}>
 					<h2>Player 1</h2>
-					{gameState.currentState === 'setup' ? (
+					{currentState === 'setup' ? (
 						// In setup phase, show own board
 						renderBoard(1, true)
 					) : (
@@ -228,7 +198,7 @@ export default function BattleShip() {
 					)}
 				</div>
 
-				{gameState.currentState !== 'setup' && (
+				{currentState !== 'setup' && (
 					<div className={styles.playerSection}>
 						<h2>Player 2</h2>
 						<div className={styles.boardContainer}>

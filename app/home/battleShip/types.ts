@@ -66,3 +66,16 @@ export type PlayerState = {
 	board: PlayerBoard; // Player's own board with ships
 	trackingGrid: CellState[][]; // Grid to track shots at opponent
 };
+
+export type SetupPhase = {
+	currentShipType: ShipType;
+	currentOrientation: Orientation;
+	placedShips: Record<string, ShipType[]>;
+};
+
+export type GamePlayState = {
+	currentState: string;
+	currentPlayer: Player;
+	players: Record<string, PlayerState>;
+	setupPhase: SetupPhase;
+};

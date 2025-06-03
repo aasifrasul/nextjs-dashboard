@@ -1,4 +1,5 @@
-// GamePlay.ts
+import { deepCopy } from '@/app/lib/deepCopy';
+
 import {
 	CellState,
 	FireShotResult,
@@ -30,9 +31,6 @@ const STANDARD_FLEET = [
 	{ type: ShipType.Submarine, count: 1 },
 	{ type: ShipType.Destroyer, count: 1 },
 ];
-
-// Helper for creating deep copies
-const deepClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
 // Create a proper 2D array initialization function
 const create2DArray = (size: number, initialValue: any): any[][] => {
@@ -119,8 +117,8 @@ export class GamePlay {
 		const state: GamePlayState = {
 			currentState: this.currentState,
 			currentPlayer: this.currentPlayer,
-			players: deepClone(this.players),
-			setupPhase: deepClone(this.setupPhase),
+			players: deepCopy(this.players),
+			setupPhase: deepCopy(this.setupPhase),
 		};
 
 		this.listeners.forEach((listener) => listener(state));
@@ -147,13 +145,13 @@ export class GamePlay {
 		return {
 			currentState: this.currentState,
 			currentPlayer: this.currentPlayer,
-			players: deepClone(this.players),
-			setupPhase: deepClone(this.setupPhase),
+			players: deepCopy(this.players),
+			setupPhase: deepCopy(this.setupPhase),
 		};
 	}
 
 	getPlayerData(player: Player): PlayerState {
-		return deepClone(this.players[player]);
+		return deepCopy(this.players[player]);
 	}
 
 	// Setup phase methods
@@ -234,7 +232,7 @@ export class GamePlay {
 
 		// Place the ship on the grid
 		const size = this.getShipSize(shipType);
-		const newGrid = deepClone(this.players[player].board.grid);
+		const newGrid = deepCopy(this.players[player].board.grid);
 		const shipId = `${player}-${shipType}-${Date.now()}`;
 
 		for (let i = 0; i < size; i++) {
@@ -330,12 +328,12 @@ export class GamePlay {
 		const isHit = targetGrid[y][x] === 'ship';
 
 		// Update the target player's board
-		const newTargetGrid = deepClone(targetGrid);
+		const newTargetGrid = deepCopy(targetGrid);
 		newTargetGrid[y][x] = isHit ? 'hit' : 'miss';
 		this.players[targetPlayer].board.grid = newTargetGrid;
 
 		// Update the player's tracking grid
-		const newTrackingGrid = deepClone(trackingGrid);
+		const newTrackingGrid = deepCopy(trackingGrid);
 		newTrackingGrid[y][x] = isHit ? 'hit' : 'miss';
 		this.players[player].trackingGrid = newTrackingGrid;
 
