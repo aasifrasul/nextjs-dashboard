@@ -27,7 +27,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
 
 			replace(`?${params.toString()}`);
 		},
-		[searchParams, replace]
+		[searchParams, replace],
 	);
 
 	// Apply dbounce separately

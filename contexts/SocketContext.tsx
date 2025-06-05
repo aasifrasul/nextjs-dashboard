@@ -22,7 +22,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 	useEffect(() => {
 		// Initialize socket connection
 		const socketInstance = io(
-			process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000'
+			process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000',
 		);
 
 		socketInstance.on('connect', () => {

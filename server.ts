@@ -15,7 +15,7 @@ app.prepare().then(() => {
 		(req: IncomingMessage, res: ServerResponse) => {
 			const parsedUrl: UrlWithParsedQuery = parse(req.url || '', true);
 			handle(req, res, parsedUrl);
-		}
+		},
 	);
 
 	// Initialize Socket.io

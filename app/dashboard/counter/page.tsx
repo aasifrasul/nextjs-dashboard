@@ -3,7 +3,6 @@
 import React, { useReducer } from 'react';
 import { Button } from '@/app/ui/button';
 
-
 interface State {
 	count: number;
 }

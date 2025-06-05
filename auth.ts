@@ -23,17 +23,17 @@ export const { auth, signIn, signOut } = NextAuth({
 	providers: [
 		Credentials({
 			async authorize(credentials) {
-				const parsedCredentials = z
+				const { success, data } = z
 					.object({
 						email: z.string(),
 						password: z.string().min(6),
 					})
 					.safeParse(credentials);
-				if (parsedCredentials.success) {
-					const { email, password } = parsedCredentials.data;
+				if (success) {
+					const { email, password } = data;
 					const user = await getUser(email);
-					
-                    if (!user) return null;
+
+					if (!user) return null;
 
 					const isValid = await bcrypt.compare(password, user.password);
 
