@@ -140,7 +140,7 @@ export default function BattleshipWith() {
 								<button
 									key={x}
 									className={`
-										${styles.cell} 
+										${styles.cell}
 										${isPreview ? styles.preview : ''}
 										${isInteractive ? styles.interactive : ''}
 									`}

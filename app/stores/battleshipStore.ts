@@ -14,16 +14,15 @@ import {
 // Pure game logic functions (no classes needed)
 const BOARD_SIZE = 10;
 
-export const getShipSize = (shipType: ShipType): number => {
-	const sizes = {
-		[ShipType.Carrier]: 5,
-		[ShipType.Battleship]: 4,
-		[ShipType.Cruiser]: 3,
-		[ShipType.Submarine]: 3,
-		[ShipType.Destroyer]: 2,
-	};
-	return sizes[shipType];
+const shipSizes = {
+	[ShipType.Carrier]: 5,
+	[ShipType.Battleship]: 4,
+	[ShipType.Cruiser]: 3,
+	[ShipType.Submarine]: 3,
+	[ShipType.Destroyer]: 2,
 };
+
+export const getShipSize = (shipType: ShipType): number => shipSizes[shipType];
 
 const canPlaceShip = (
 	grid: CellState[][],

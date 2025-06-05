@@ -9,6 +9,8 @@ type EventType =
 	| 'click'
 	| 'touchstart'
 	| 'touchend'
+	| 'pointerdown'
+	| 'pointerup' // Better for modern touch handling
 	| 'mouseover'
 	| 'mouseout'
 	| 'mouseenter'
@@ -38,10 +40,13 @@ export const useClickOutside = <T extends ElementRef = ElementRef>(
 
 	const handleClickOutside = useCallback(
 		(event: Event): void => {
-			if (outsideRef.current && event.target instanceof Element) {
+			// No ref to check against, do nothing
+			if (!outsideRef.current) return;
+
+			if (event.target instanceof Element) {
 				setIsOutsideClick(!outsideRef.current.contains(event.target));
-			} else if (outsideRef.current) {
-				setIsOutsideClick(true); // If no target element and there is a ref, its an outside click
+			} else {
+				setIsOutsideClick(true);
 			}
 		},
 		[setIsOutsideClick],

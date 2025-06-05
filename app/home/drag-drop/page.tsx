@@ -82,7 +82,7 @@ export default function App() {
 
 		const target = e.target as HTMLElement;
 		const dropTarget = target.closest('[data-column-id]') as HTMLElement;
-		if (!dropTarget || dropTarget.getAttribute('data-column-type') === 'header') return;
+		if (!dropTarget || dropTarget.getAttribute('data-column-type') !== 'drop-zone') return;
 
 		const targetColumn = dropTarget.getAttribute('data-column-id') as keyof ColumnData;
 		const { item, sourceColumn } = draggedItem;

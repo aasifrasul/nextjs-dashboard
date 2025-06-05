@@ -35,6 +35,11 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
+		name: 'Tanstack Query',
+		href: '/home/tanstack-query',
+		icon: DocumentDuplicateIcon,
+	},
+	{
 		name: 'Stop Watch',
 		href: '/home/stopWatch',
 		icon: DocumentDuplicateIcon,
