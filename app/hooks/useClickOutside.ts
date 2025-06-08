@@ -16,11 +16,6 @@ type EventType =
 	| 'mouseenter'
 	| 'mouseleave';
 
-interface UseClickOutside<T extends ElementRef> {
-	isOutsideClick: boolean;
-	outsideRef: RefObject<T | null>;
-}
-
 type ElementRef =
 	| HTMLElement
 	| HTMLDivElement
@@ -30,6 +25,11 @@ type ElementRef =
 	| HTMLSelectElement
 	| HTMLUListElement
 	| null;
+
+interface UseClickOutside<T extends ElementRef> {
+	isOutsideClick: boolean;
+	outsideRef: RefObject<T | null>;
+}
 
 export const useClickOutside = <T extends ElementRef = ElementRef>(
 	initialState: boolean = false,
@@ -52,7 +52,7 @@ export const useClickOutside = <T extends ElementRef = ElementRef>(
 		[setIsOutsideClick],
 	);
 
-	useEventListener(eventType, handleClickOutside, document);
+	useEventListener(eventType, handleClickOutside, globalThis.document);
 
 	return { isOutsideClick, outsideRef };
 };

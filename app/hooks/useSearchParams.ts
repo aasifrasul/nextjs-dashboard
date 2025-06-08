@@ -3,25 +3,45 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { useEventListener } from '.';
 
-type callbackParams = URLSearchParams | ((prev: URLSearchParams) => URLSearchParams);
-
 export function useSearchParams() {
+	const [isInitialized, setIsInitialized] = useState(false);
 	// Initialize with current URL search params
 	const [searchParams, setSearchParams] = useState<URLSearchParams>(
-		new URLSearchParams(window?.location?.search),
+		getNewSearchParams(),
 	);
 
-	useEventListener('popstate', handlePopState, window);
+	useEventListener('popstate', handlePopState, globalThis);
 
-	// Update URL whenever searchParams changes
 	useEffect(() => {
-		setSearchParams(new URLSearchParams(window?.location?.search));
+		setSearchParams(getNewSearchParams());
 	}, []);
+
+	const getPageURL = useCallback(
+		(): string => `${globalThis.location.pathname}?${searchParams.toString()}`,
+		[searchParams],
+	);
+
+	function getNewSearchParams() {
+		return new URLSearchParams(globalThis.location?.search);
+	}
+
+	useEffect(() => {
+		if (!isInitialized) {
+			setIsInitialized(true);
+			return;
+		}
+
+		globalThis.history.replaceState(
+			{ searchParams: searchParams.toString() },
+			'',
+			getPageURL(),
+		);
+	}, [searchParams, getPageURL, isInitialized]);
 
 	function handlePopState(event: PopStateEvent) {
 		// Get params from event state if available, otherwise from URL
 		const newParams = new URLSearchParams(
-			event.state?.searchParams || window?.location?.search,
+			event.state?.searchParams || globalThis.location.search,
 		);
 		setSearchParams(newParams);
 	}
@@ -29,27 +49,18 @@ export function useSearchParams() {
 	// Convenience method to update parameters
 	const updateParams = useCallback(
 		(params: Record<string, string | null>) => {
-			// null could indicate deletion
 			setSearchParams((prevParams: URLSearchParams): URLSearchParams => {
 				const newParams: URLSearchParams = new URLSearchParams(prevParams);
 				for (const key in params) {
-					if (key.length > 0) {
-						if (params[key] === null) {
-							newParams.delete(key);
-						} else {
-							newParams.set(key, params[key] as string);
-						}
-					}
+					if (key.length === 0) continue;
+					params[key] === null
+						? newParams.delete(key)
+						: newParams.set(key, params[key] as string);
 				}
 				return newParams;
 			});
 		},
 		[setSearchParams],
-	);
-
-	const getPageURL = useCallback(
-		(): string => `${window.location.pathname}?${searchParams.toString()}`,
-		[searchParams],
 	);
 
 	return { searchParams, setSearchParams, updateParams, getPageURL };
