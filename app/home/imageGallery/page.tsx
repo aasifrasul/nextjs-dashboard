@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 import { useSearchParams } from '../../hooks/';
 
+import styles from './ImageGallery.module.css';
+
 const images = [
 	'amy-burns.png',
 	'balazs-orban.png',
@@ -26,10 +28,24 @@ export default function ImageGallery() {
 	};
 
 	return (
-		<div className="main-container">
-			<span onClick={() => handleGalleryNavigation(-1)}>{'<'}</span>
-			<img src={`/customers/${images[currentId]}`} />
-			<span onClick={() => handleGalleryNavigation(1)}>{'>'}</span>
+		<div className={styles.mainContainer}>
+			<span
+				className={styles.navigationArrow}
+				onClick={() => handleGalleryNavigation(-1)}
+			>
+				{'<'}
+			</span>
+			<img
+				src={`/customers/${images[currentId]}`}
+				alt={`Gallery image ${currentId + 1}`}
+				className={styles.galleryImage}
+			/>
+			<span
+				className={styles.navigationArrow}
+				onClick={() => handleGalleryNavigation(1)}
+			>
+				{'>'}
+			</span>
 		</div>
 	);
 }

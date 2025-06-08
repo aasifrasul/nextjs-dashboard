@@ -9,12 +9,12 @@ import {
 	ChangeEvent,
 } from 'react';
 import Portal from '@/app/lib/Portal';
-import { memoize } from '@/app/lib/memoize';
+import { memoize } from '@/app/lib/memoize'; // Assuming these are utility functions
 import { dbounce } from '@/app/lib/utils';
-import { useClickOutside, useSearchParams } from '@/app/hooks';
+import { useClickOutside, useSearchParams, useEventListener } from '@/app/hooks';
+import { fetchAPIData } from '@/app/lib/aoiUtils';
 
 const url: string = 'https://autocomplete.clearbit.com/v1/companies/suggest?query=';
-
 const delay: number = 500;
 
 interface Item {
@@ -30,59 +30,67 @@ export default function AutoComplete() {
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 	const [currentItem, setCurrentItem] = useState<Item | null>(null);
 
-	const modalContainerRef = useRef<RefObject<HTMLDivElement>>(null);
+	const modalContainerRef = useRef<HTMLDivElement | null>(null);
 	const searchCacheRef = useRef<Record<string, Item[]>>({});
 
 	const { searchParams, updateParams } = useSearchParams();
 
-	const { isOutsideClick, outsideRef } = useClickOutside<HTMLUListElement | HTMLDivElement>(
-		false,
-		'mousedown',
-	);
+	// Track outside clicks for the list separately
+	const { isOutsideClick: isListOutsideClick, outsideRef: listRef } =
+		useClickOutside<HTMLUListElement>(false);
 
-	const fetchData = useCallback(async (searchText: string) => {
-		if (searchText.length === 0) return;
+	// Track outside clicks for the modal separately
+	const { isOutsideClick: isModalOutsideClick, outsideRef: modalRef } =
+		useClickOutside<HTMLDivElement>(false);
 
-		try {
-			setIsLoading(true);
+	const fetchData = useCallback(
+		async (searchText: string) => {
+			if (searchText.length === 0 || isLoading) return;
 
 			if (searchText in searchCacheRef.current) {
-				setItems(() => {
-					setIsLoading(false);
-					return searchCacheRef.current[searchText];
-				});
-				return;
+				return setItems(searchCacheRef.current[searchText]);
 			}
 
-			updateParams({ searchText });
+			setIsLoading(true);
 
-			const result = await fetch(`${url}${searchText}`);
-			const data: Item[] = await result.json();
-			searchCacheRef.current[searchText] = data;
-			setItems(data);
-		} catch (err) {
-			console.log(err);
-		} finally {
+			const result = await fetchAPIData((`${url}${searchText}`));
+
+			if (result.success) {
+				const data: Item[] = result.data as Item[];
+				searchCacheRef.current[searchText] = data;
+				setItems(data);
+				updateParams({ searchText });
+			} else {
+				console.error('Error fetching data:', result.error);
+				setItems([]);
+			}
+
 			setIsLoading(false);
-		}
-	}, []);
+		},
+		[updateParams],
+	);
 
-	const debouncedFetchData = useMemo(() => dbounce(fetchData, delay), [fetchData]);
+	// Use useRef to maintain stable reference to debounced function
+	const debouncedFetchDataRef = useRef<((searchText: string) => void) | null>(null);
+
+	// Update the ref when fetchData changes, but don't trigger re-renders
+	useEffect(() => {
+		debouncedFetchDataRef.current = dbounce(fetchData, delay);
+	}, [fetchData]);
 
 	const handleChange = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			const searchText = e.target.value || '';
 			setText(searchText);
 
-			if (searchText?.length > 0) {
-				debouncedFetchData(searchText.toLowerCase());
+			if (searchText.length > 0 && debouncedFetchDataRef.current) {
+				debouncedFetchDataRef.current(searchText.toLowerCase());
 			} else {
-				updateParams({ searchText: '' });
-				setItems([]);
-				closeModal();
+				// Clear search params, items, and close modal when input is empty
+				handleClear();
 			}
 		},
-		[debouncedFetchData],
+		[updateParams],
 	);
 
 	const handleClick = (index: number) => {
@@ -94,10 +102,9 @@ export default function AutoComplete() {
 		setText('');
 		setItems([]);
 		closeModal();
-		updateParams({ searchText: '' });
+		updateParams({ searchText: null }); // Ensure URL param is cleared
 	};
 
-	// Close modal handler
 	const closeModal = () => {
 		setIsModalOpen(false);
 		setCurrentItem(null);
@@ -105,76 +112,145 @@ export default function AutoComplete() {
 
 	useEffect(() => {
 		const searchText = searchParams.get('searchText') || '';
+		if (searchText.length === 0) return;
 		setText(searchText);
-		debouncedFetchData(searchText);
-	}, []);
+		debouncedFetchDataRef.current?.(searchText);
+	}, [searchParams]);
 
+	// Handle outside click for search results list
 	useEffect(() => {
-		if (isOutsideClick) {
-			if (!isModalOpen) {
-				setItems([]);
-			}
-			closeModal();
+		if (isListOutsideClick && items.length > 0 && !isModalOpen) {
+			//setItems([]); // Only hide search results when modal is not open
 		}
-	}, [isOutsideClick]);
+	}, [isListOutsideClick, items.length, isModalOpen]);
 
-	const handlePageReload = (e: any) => {
-		console.log('page reloaded on event', e);
-	};
-
+	// Handle outside click for modal
 	useEffect(() => {
-		window.addEventListener('beforeunload', handlePageReload);
-		return () => {
-			window.removeEventListener('beforeunload', handlePageReload);
-		};
-	});
+		if (isModalOutsideClick && isModalOpen) {
+			closeModal(); // Close the modal
+		}
+	}, [isModalOutsideClick, isModalOpen]);
+
+	const handlePageReload = useCallback((e: BeforeUnloadEvent) => {
+		console.log('Page reloaded on event', e);
+		// You might want to remove searchParams here or not, depending on desired behavior
+		// updateParams({ searchText: null }); // Example: clear on reload
+	}, []); // useCallback for handlePageReload
+
+	useEventListener('beforeunload', handlePageReload, globalThis);
 
 	return (
 		<>
-			<div>
-				<input type="text" value={text} onChange={handleChange} />{' '}
-				<button
-					onClick={handleClear}
-					//className="mt-4 rounded-md bg-blue-500 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-400"
-					className="h-[48px] bg-blue-300 w-[70px] grow items-center justify-center gap-2 rounded-md p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3"
-				>
-					<span className="sr-only text-black">Clear</span>
-				</button>
-				{isLoading && <div className="loading-indicator">Loading...</div>}
-				{!isLoading && !isModalOpen ? (
-					<ul ref={outsideRef}>
-						{items?.length > 0 ? (
-							items?.map(({ name, logo }, index) => (
-								<li key={index} onClick={() => handleClick(index)}>
-									{name} <img src={logo} alt={name} />
-								</li>
-							))
-						) : text.length > 0 ? (
-							<li className="no-results">No results found</li>
-						) : null}
-					</ul>
-				) : null}
-				{isModalOpen && modalContainerRef.current ? (
-					<Portal container={modalContainerRef.current}>
-						<div className="modal-content" ref={outsideRef}>
-							<button onClick={closeModal} className="close-button">
-								X
-							</button>
-							{currentItem ? (
-								<div className="modal-body">
-									{currentItem?.name}{' '}
-									<img src={currentItem?.logo} alt={currentItem?.name} />
-								</div>
-							) : null}
+			<div className="relative flex flex-col items-center p-4 min-h-screen bg-gray-50">
+				{' '}
+				{/* Container for centering and background */}
+				<div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-md">
+					{' '}
+					{/* Card-like container for the autocomplete */}
+					<div className="flex items-center gap-2 mb-4">
+						{' '}
+						{/* Input and button group */}
+						<input
+							type="text"
+							value={text}
+							onChange={handleChange}
+							placeholder="Search companies..."
+							className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 text-base"
+						/>
+						<button
+							onClick={handleClear}
+							// Re-evaluated Tailwind classes for better button styling
+							className="h-10 px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out flex items-center justify-center"
+						>
+							<span className="text-sm">Clear</span>
+							{/* You could add an icon here, e.g., <XMarkIcon className="h-5 w-5 ml-1" /> */}
+						</button>
+					</div>
+					{isLoading && (
+						<div className="text-center py-4 text-blue-600 font-semibold">
+							Loading results...
 						</div>
-					</Portal>
-				) : null}
+					)}
+					{!isLoading && !isModalOpen && items.length > 0 && (
+						<ul
+							ref={listRef}
+							className="absolute z-10 w-[calc(100%-3rem)] max-w-lg bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto"
+						>
+							{' '}
+							{/* Positioning and styling for results list */}
+							{items.map(({ name, logo, domain }, index) => (
+								<li
+									key={domain} // Use a unique key like domain
+									onClick={() => handleClick(index)}
+									className="flex items-center p-3 cursor-pointer hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
+								>
+									{logo && (
+										<img
+											src={logo}
+											alt={`${name} logo`}
+											className="w-8 h-8 mr-3 object-contain rounded-full border border-gray-200 p-0.5"
+										/>
+									)}
+									<span className="text-gray-800 font-medium">{name}</span>
+									<span className="ml-auto text-sm text-gray-500">
+										{domain}
+									</span>{' '}
+									{/* Show domain as well */}
+								</li>
+							))}
+						</ul>
+					)}
+					{!isLoading && !isModalOpen && items.length === 0 && text.length > 0 && (
+						<div className="text-center py-4 text-gray-500">
+							No results found for "{text}".
+						</div>
+					)}
+				</div>
 			</div>
-			<div
-				ref={(instance) => {
-					modalContainerRef.current = instance;
-				}}
-			></div>
+			{/* Modal Portal */}
+			{isModalOpen && (
+				<Portal container={modalContainerRef.current!}>
+					{' '}
+					{/* Non-null assertion as it's guaranteed to be mounted */}
+					<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+						{' '}
+						{/* Overlay */}
+						<div
+							ref={modalRef}
+							className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md relative animate-fade-in"
+						>
+							{' '}
+							{/* Modal content box */}
+							<button
+								onClick={closeModal}
+								className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl font-bold p-1 rounded-full hover:bg-gray-100"
+							>
+								&times; {/* Nicer 'X' character */}
+							</button>
+							{currentItem && (
+								<div className="text-center">
+									<h2 className="text-2xl font-bold text-gray-800 mb-4">
+										{currentItem.name}
+									</h2>
+									{currentItem.logo && (
+										<img
+											src={currentItem.logo}
+											alt={`${currentItem.name} logo`}
+											className="mx-auto mb-4 w-24 h-24 object-contain rounded-full border border-gray-200 p-1"
+										/>
+									)}
+									<p className="text-gray-600 text-lg">
+										{currentItem.domain}
+									</p>
+									{/* Add more details here if needed */}
+								</div>
+							)}
+						</div>
+					</div>
+				</Portal>
+			)}
+			{/* Hidden div for Portal container */}
+			<div ref={modalContainerRef} id="modal-root" /> {/* Assign ID for clarity */}
 		</>
 	);
 }
