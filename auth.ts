@@ -1,46 +1,60 @@
 import NextAuth from 'next-auth';
-import { authConfig } from './auth.config';
-import Credentials from 'next-auth/providers/credentials';
-import { z } from 'zod';
-import { sql } from './app/lib/db';
-import type { User } from './app/lib/definitions';
 import bcrypt from 'bcrypt';
+import { z } from 'zod';
+import Credentials from 'next-auth/providers/credentials';
+
+import { authConfig } from './auth.config';
+import type { User } from './app/lib/definitions';
+import { logger } from './app/lib/Logger';
+import { executeQueryWithResult } from './app/lib/db-utils';
 
 async function getUser(email: string): Promise<User | null> {
 	try {
-		const user: User[] = await sql`
-            SELECT * FROM users WHERE email = ${email}
-        `;
-		return user[0];
+		const query = 'SELECT id, email, password, name FROM users WHERE email = $1';
+		const params = [email];
+		const users: User[] = await executeQueryWithResult(query, params);
+		return users[0] || null; // Return null if no user found
 	} catch (err) {
-		console.error('Database Error: Failed to fetch user.');
+		logger.error('Database Error: Failed to fetch user.');
 		return null;
 	}
 }
+
+const stripPassword = (user: User): Omit<User, 'password'> => {
+	const { password, ...userWithoutPassword } = user;
+	return {
+		...userWithoutPassword,
+		id: user.id.toString(), // Ensure id is string
+	};
+};
 
 export const { auth, signIn, signOut } = NextAuth({
 	...authConfig,
 	providers: [
 		Credentials({
 			async authorize(credentials) {
-				const { success, data } = z
+				const parsedCredentials = z
 					.object({
-						email: z.string(),
+						email: z.string().email(),
 						password: z.string().min(6),
 					})
 					.safeParse(credentials);
-				if (success) {
-					const { email, password } = data;
+
+				if (parsedCredentials.success) {
+					const { email, password } = parsedCredentials.data;
 					const user = await getUser(email);
 
-					if (!user) return null;
+					if (!user) {
+						logger.info('User not found');
+						return null;
+					}
 
-					const isValid = await bcrypt.compare(password, user.password);
+					const isPasswordsMatch = await bcrypt.compare(password, user.password);
 
-					if (isValid) return user;
+					if (isPasswordsMatch) return stripPassword(user);
 				}
 
-				console.log('Invalid credentials');
+				logger.info('Invalid credentials');
 				return null;
 			},
 		}),

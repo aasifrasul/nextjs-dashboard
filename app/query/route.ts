@@ -1,25 +1,18 @@
-import { Pool } from 'pg';
-
-const pool = new Pool({
-	user: 'test',
-	host: 'localhost',
-	database: 'test',
-	password: 'test',
-	port: 5432,
-	connectionTimeoutMillis: 10000,
-});
-
-const client = await pool.connect();
+import { executeQueryWithResult } from '../lib/db-utils';
 
 async function listInvoices() {
-	const data = await client.query(`
-		SELECT invoices.amount, customers.name
-		FROM invoices
-		JOIN customers ON invoices.customer_id = customers.id
-		WHERE invoices.amount = 666;
-   `);
-
-	return data.rows;
+	try {
+		const query = `
+			SELECT invoices.amount, customers.name
+			FROM invoices
+			JOIN customers ON invoices.customer_id = customers.id
+			WHERE invoices.amount = $1;
+	   `;
+		return await executeQueryWithResult(query, [666]);
+	} catch (error) {
+		console.error('Database Error:', error);
+		throw new Error('Failed to fetch revenue data.');
+	}
 }
 
 export async function GET() {

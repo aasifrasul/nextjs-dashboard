@@ -6,9 +6,7 @@ import { useEventListener } from '.';
 export function useSearchParams() {
 	const [isInitialized, setIsInitialized] = useState(false);
 	// Initialize with current URL search params
-	const [searchParams, setSearchParams] = useState<URLSearchParams>(
-		getNewSearchParams(),
-	);
+	const [searchParams, setSearchParams] = useState<URLSearchParams>(getNewSearchParams());
 
 	useEventListener('popstate', handlePopState, globalThis);
 

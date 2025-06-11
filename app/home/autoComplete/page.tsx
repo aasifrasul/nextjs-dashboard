@@ -53,7 +53,7 @@ export default function AutoComplete() {
 
 			setIsLoading(true);
 
-			const result = await fetchAPIData((`${url}${searchText}`));
+			const result = await fetchAPIData(`${url}${searchText}`);
 
 			if (result.success) {
 				const data: Item[] = result.data as Item[];
