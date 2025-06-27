@@ -1,12 +1,11 @@
 'use server';
-
+import { AuthError } from 'next-auth';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-
-import { sql } from './db';
+import { executeQuery } from './db-utils';
 import { signIn, signOut } from '@/auth';
-import { AuthError } from 'next-auth';
+import { logger } from '../lib/Logger';
 
 const FormSchema = z.object({
 	id: z.string(),
@@ -67,18 +66,15 @@ export async function createInvoice(prevState: State, formData: FormData) {
 	}
 
 	const { customerId, amount, status } = validatedFields.data;
-
 	const amountInCents = amount * 100;
 	const date = new Date().toISOString().split('T')[0];
 
 	try {
-		await sql`
-          INSERT INTO invoices (customer_id, amount, status, date)
-          VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-        `;
+		const query = `INSERT INTO invoices (customer_id, amount, status, date) VALUES ($1, $2, $3, $4)`;
+		const params = [customerId, amountInCents, status, date];
+		await executeQuery(query, params);
 	} catch (error) {
-		console.error(error);
-		// If a database error occurs, return a more specific error.
+		logger.error(error);
 		return {
 			message: 'Database Error: Failed to Create Invoice.',
 		};
@@ -106,13 +102,11 @@ export async function updateInvoice(id: string, prevState: State, formData: Form
 	const amountInCents = amount * 100;
 
 	try {
-		await sql`
-            UPDATE invoices 
-            SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-            WHERE id = ${id}
-        `;
+		const query = `UPDATE invoices SET customer_id = $1, amount = $2, status = $3 WHERE id = $4`;
+		const params = [customerId, amountInCents, status, id];
+		await executeQuery(query, params);
 	} catch (err) {
-		console.error(err);
+		logger.error(err);
 		return {
 			message: 'Database Error: Failed to Edit Invoice.',
 		};
@@ -123,7 +117,12 @@ export async function updateInvoice(id: string, prevState: State, formData: Form
 }
 
 export async function deleteInvoice(id: string) {
-	await sql`DELETE FROM invoices WHERE id = ${id}`;
-
+	try {
+		const query = `DELETE FROM invoices WHERE id = $1`;
+		const params = [id];
+		await executeQuery(query, params);
+	} catch (err) {
+		logger.error(err);
+	}
 	revalidatePath('/dashboard/invoices');
 }

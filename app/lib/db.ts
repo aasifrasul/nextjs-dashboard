@@ -1,4 +1,5 @@
 import postgres from 'postgres';
+import { Pool } from 'pg';
 
 // Parse connection string to remove pgbouncer parameter if present
 const getConnectionString = (url: string): string => {
@@ -25,4 +26,15 @@ export const sql = postgres(getConnectionString(connectionString), {
 	max: 10, // Set connection pool size
 	idle_timeout: 20, // Idle connection timeout in seconds
 	connect_timeout: 15, // Connection timeout in seconds
+});
+
+export const pool = new Pool({
+	user: 'test',
+	host: 'localhost',
+	database: 'postgres',
+	password: 'test',
+	port: 5432,
+	max: 20, // maximum number of clients in the pool
+	idleTimeoutMillis: 1000, // close idle clients after 1 second
+	connectionTimeoutMillis: 1000, // return an error after 1 second if connection could not be established
 });
