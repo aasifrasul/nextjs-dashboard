@@ -18,7 +18,8 @@ async function seedUsers() {
 		const insertedUsers = await Promise.all(
 			users.map(async (user) => {
 				const hashedPassword = await bcrypt.hash(user.password, 10);
-				return executeQuery(`
+				return executeQuery(
+					`
 					INSERT INTO users (id, name, email, password)
 					VALUES ($1, $2, $3, $4)
 					ON CONFLICT (id) DO NOTHING;
@@ -48,7 +49,8 @@ async function seedInvoices() {
 
 		const insertedInvoices = await Promise.all(
 			invoices.map((invoice) =>
-				executeQuery(`
+				executeQuery(
+					`
 					INSERT INTO invoices (customer_id, amount, status, date)
 					VALUES ($1, $2, $3, $4)
 					ON CONFLICT (id) DO NOTHING;
@@ -77,7 +79,8 @@ async function seedCustomers() {
 
 		const insertedCustomers = await Promise.all(
 			customers.map((customer) =>
-				executeQuery(`
+				executeQuery(
+					`
 					INSERT INTO customers (id, name, email, image_url)
 					VALUES ($1, $2, $3, $4)
 					ON CONFLICT (id) DO NOTHING;
@@ -103,7 +106,8 @@ async function seedRevenue() {
 
 		const insertedRevenue = await Promise.all(
 			revenue.map((rev) =>
-				executeQuery(`
+				executeQuery(
+					`
 					INSERT INTO revenue (month, revenue)
 					VALUES ($1, $2)
 					ON CONFLICT (month) DO NOTHING;

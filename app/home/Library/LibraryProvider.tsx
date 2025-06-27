@@ -1,8 +1,8 @@
-import React, { useEffect, useReducer, useCallback, createContext, useContext } from 'react';
+import { useEffect, useReducer, useCallback, createContext, useContext } from 'react';
 
 import { dbounce } from '@/app/lib/utils';
 
-import { Book, LibraryProivderProps, InitialState, LibraryContext } from './types';
+import { LibraryProivderProps, InitialState, LibraryContext } from './types';
 import { libraryReducer } from './libraryReducer';
 import * as actions from './ActionCreators';
 

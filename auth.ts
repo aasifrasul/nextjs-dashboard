@@ -6,13 +6,13 @@ import Credentials from 'next-auth/providers/credentials';
 import { authConfig } from './auth.config';
 import type { User } from './app/lib/definitions';
 import { logger } from './app/lib/Logger';
-import { executeQueryWithResult } from './app/lib/db-utils';
+import { executeQuery } from './app/lib/db-utils';
 
 async function getUser(email: string): Promise<User | null> {
 	try {
 		const query = 'SELECT id, email, password, name FROM users WHERE email = $1';
 		const params = [email];
-		const users: User[] = await executeQueryWithResult(query, params);
+		const users: User[] = await executeQuery(query, params);
 		return users[0] || null; // Return null if no user found
 	} catch (err) {
 		logger.error('Database Error: Failed to fetch user.');

@@ -1,4 +1,4 @@
-import { executeQueryWithResult } from '../lib/db-utils';
+import { executeQuery } from '../lib/db-utils';
 
 async function listInvoices() {
 	try {
@@ -8,7 +8,7 @@ async function listInvoices() {
 			JOIN customers ON invoices.customer_id = customers.id
 			WHERE invoices.amount = $1;
 	   `;
-		return await executeQueryWithResult(query, [666]);
+		return await executeQuery(query, [666]);
 	} catch (error) {
 		console.error('Database Error:', error);
 		throw new Error('Failed to fetch revenue data.');

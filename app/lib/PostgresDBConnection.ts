@@ -14,18 +14,16 @@ export class DatabaseConnectionError extends Error {
 }
 
 export class QueryExecutionError extends Error {
+	private _query: string;
+
 	constructor(message: string, query: string) {
 		super(message);
 		this.name = 'QueryExecutionError';
-		this.query = query;
+		this._query = query;
 	}
 
 	public get query(): string {
-		return this.query;
-	}
-
-	public set query(value: string) {
-		this.query = value;
+		return this._query;
 	}
 }
 
