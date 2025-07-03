@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useRef, useCallback } from 'react';
-import { logger } from '../lib/Logger';
 import { ErrorHandlingOptions, Options, Target, EventMap } from './types';
 import { isFunction } from '../lib/typeChecking';
 
@@ -24,7 +23,7 @@ export function useEventListener<K extends keyof EventMap = keyof EventMap>(
 
 	const handleError = useCallback((message: string, error: unknown): void => {
 		const err = error instanceof Error ? error : new Error(message);
-		logger.error(message, err); // Use message for logging
+		console.error(message, err); // Use message for logging
 		errorHandlingRef.current.onError?.(err);
 		if (!errorHandlingRef.current.suppressErrors) {
 			throw err;
@@ -45,7 +44,7 @@ export function useEventListener<K extends keyof EventMap = keyof EventMap>(
 
 	useEffect(() => {
 		if (!element) {
-			logger.debug('No target element provided, skipping event listener attachment');
+			console.debug('No target element provided, skipping event listener attachment');
 			return;
 		}
 
@@ -55,14 +54,14 @@ export function useEventListener<K extends keyof EventMap = keyof EventMap>(
 				throw new Error('Target element does not support event listeners');
 			}
 
-			logger.debug(`Attaching ${eventType} listener to element`, {
+			console.debug(`Attaching ${eventType} listener to element`, {
 				element,
 				options: optionsRef.current,
 			});
 			element.addEventListener(eventType, eventHandler, optionsRef.current);
 
 			return () => {
-				logger.debug(`Removing ${eventType} listener from element`);
+				console.debug(`Removing ${eventType} listener from element`);
 				element.removeEventListener(eventType, eventHandler, optionsRef.current);
 			};
 		} catch (error) {
