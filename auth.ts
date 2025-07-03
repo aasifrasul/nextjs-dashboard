@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import bcrypt from 'bcrypt';
-import { z } from 'zod';
+import z from 'zod';
 import Credentials from 'next-auth/providers/credentials';
 
 import { authConfig } from './auth.config';

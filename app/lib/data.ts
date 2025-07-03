@@ -2,9 +2,7 @@ import {
 	CustomerField,
 	CustomersTableType,
 	InvoiceForm,
-	InvoicesTable,
 	LatestInvoiceRaw,
-	Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { logger } from './Logger';
@@ -43,9 +41,6 @@ export async function fetchLatestInvoices() {
 
 export async function fetchCardData() {
 	try {
-		// You can probably combine these into a single SQL query
-		// However, we are intentionally splitting them to demonstrate
-		// how to initialize multiple queries in parallel with JS.
 		const invoiceCountPromise = executeQuery(`SELECT COUNT(*) FROM invoices`);
 		const customerCountPromise = executeQuery(`SELECT COUNT(*) FROM customers`);
 		const invoiceStatusPromise = executeQuery(`SELECT
@@ -81,7 +76,7 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
 	const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
 	try {
-		const query = `
+		const sql = `
 			SELECT
 				invoices.id,
 				invoices.amount,
@@ -102,7 +97,7 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
 			LIMIT $2 OFFSET $3
 		`;
 		const params = [`%${query}%`, ITEMS_PER_PAGE, offset];
-		return await executeQuery(query, params);
+		return await executeQuery(sql, params);
 	} catch (error) {
 		logger.error('Database Error:', error);
 		throw new Error('Failed to fetch invoices.');
@@ -111,7 +106,7 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
 
 export async function fetchInvoicesPages(query: string) {
 	try {
-		const query = `SELECT COUNT(*)
+		const sql = `SELECT COUNT(*)
 			FROM invoices
 			JOIN customers ON invoices.customer_id = customers.id
 			WHERE
@@ -120,7 +115,7 @@ export async function fetchInvoicesPages(query: string) {
 			invoices.amount::text ILIKE $1 OR
 			invoices.date::text ILIKE $1 OR
 			invoices.status ILIKE $1`;
-		const count = await executeQuery(query, [`%${query}%`]);
+		const count = await executeQuery(sql, [`%${query}%`]);
 		return Math.ceil(Number((count as any[])[0].count) / ITEMS_PER_PAGE);
 	} catch (error) {
 		logger.error('Database Error:', error);
@@ -174,8 +169,6 @@ export async function fetchCustomers() {
 }
 
 export async function fetchFilteredCustomers(query: string) {
-	let client;
-
 	try {
 		const customers: CustomersTableType[] = await executeQuery(
 			`

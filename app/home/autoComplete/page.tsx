@@ -1,18 +1,9 @@
 'use client';
-import {
-	useState,
-	useRef,
-	useCallback,
-	useEffect,
-	useMemo,
-	RefObject,
-	ChangeEvent,
-} from 'react';
+import { useState, useRef, useCallback, useEffect, ChangeEvent } from 'react';
 import Portal from '@/app/lib/Portal';
-import { memoize } from '@/app/lib/memoize'; // Assuming these are utility functions
 import { dbounce } from '@/app/lib/utils';
 import { useClickOutside, useSearchParams, useEventListener } from '@/app/hooks';
-import { fetchAPIData } from '@/app/lib/aoiUtils';
+import { fetchAPIData } from '@/app/lib/apiUtils';
 
 const url: string = 'https://autocomplete.clearbit.com/v1/companies/suggest?query=';
 const delay: number = 500;

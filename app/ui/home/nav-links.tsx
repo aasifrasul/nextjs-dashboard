@@ -55,11 +55,6 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
-		name: 'Counter',
-		href: '/home/counter',
-		icon: DocumentDuplicateIcon,
-	},
-	{
 		name: 'Conditional Sorting',
 		href: '/home/conditionalSorting',
 		icon: DocumentDuplicateIcon,

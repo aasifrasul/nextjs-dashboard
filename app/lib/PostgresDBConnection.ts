@@ -93,7 +93,7 @@ export class PostgresDBConnection {
 
 	public async executeQuery<T extends QueryResultRow = QueryResultRow>(
 		query: string,
-		params?: any[],
+		params: any[] = [],
 	): Promise<T[]> {
 		if (this.isShuttingDown) {
 			throw new Error('Database connection is shutting down, no new queries allowed');
@@ -109,7 +109,9 @@ export class PostgresDBConnection {
 			logger.debug(`Query returned ${result.rowCount} rows`);
 			return result.rows;
 		} catch (err) {
-			logger.error(`PostgresDBConnection executeQuery failed: ${(err as Error).stack}`);
+			logger.error(
+				`PostgresDBConnection executeQuery failed: ${(err as Error).stack} query: ${query} params: ${params?.toString()}`,
+			);
 			throw new QueryExecutionError(
 				`Failed to execute query: ${(err as Error).message}`,
 				query,
