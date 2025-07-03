@@ -1,8 +1,7 @@
 'use client';
 import { useState, useRef, useCallback, useEffect, ChangeEvent } from 'react';
 import Portal from '@/app/lib/Portal';
-import { dbounce } from '@/app/lib/utils';
-import { useClickOutside, useSearchParams, useEventListener } from '@/app/hooks';
+import { useClickOutside, useSearchParams, useEventListener, useDebouncedCallback } from '@/app/hooks';
 import { fetchAPIData } from '@/app/lib/apiUtils';
 
 const url: string = 'https://autocomplete.clearbit.com/v1/companies/suggest?query=';
@@ -58,30 +57,23 @@ export default function AutoComplete() {
 
 			setIsLoading(false);
 		},
-		[updateParams],
+		[updateParams, isLoading],
 	);
 
-	// Use useRef to maintain stable reference to debounced function
-	const debouncedFetchDataRef = useRef<((searchText: string) => void) | null>(null);
-
-	// Update the ref when fetchData changes, but don't trigger re-renders
-	useEffect(() => {
-		debouncedFetchDataRef.current = dbounce(fetchData, delay);
-	}, [fetchData]);
+	const { debouncedCallback } = useDebouncedCallback(fetchData, 500);
 
 	const handleChange = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			const searchText = e.target.value || '';
 			setText(searchText);
-
-			if (searchText.length > 0 && debouncedFetchDataRef.current) {
-				debouncedFetchDataRef.current(searchText.toLowerCase());
-			} else {
-				// Clear search params, items, and close modal when input is empty
+			if (searchText.length <= 0) {
 				handleClear();
+				return;
 			}
+
+			debouncedCallback(searchText)
 		},
-		[updateParams],
+		[fetchData],
 	);
 
 	const handleClick = (index: number) => {
@@ -105,8 +97,10 @@ export default function AutoComplete() {
 		const searchText = searchParams.get('searchText') || '';
 		if (searchText.length === 0) return;
 		setText(searchText);
-		debouncedFetchDataRef.current?.(searchText);
-	}, [searchParams]);
+
+		// Set new timer for URL param-based search
+		debouncedCallback(searchText);
+	}, [searchParams, fetchData]);
 
 	// Handle outside click for search results list
 	useEffect(() => {

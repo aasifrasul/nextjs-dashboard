@@ -4,3 +4,4 @@ export { useEventListener } from './useEventListener';
 export { useTimer } from './useTimer';
 export { useClickOutside } from './useClickOutside';
 export { useToggle } from './useToggle';
+export { useDebouncedCallback } from './useDebouncedCallback';
