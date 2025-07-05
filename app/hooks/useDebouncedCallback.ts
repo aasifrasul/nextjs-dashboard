@@ -18,17 +18,20 @@ export function useDebouncedCallback<A extends any[]>(
 		return cancel;
 	}, []);
 
-	const debouncedCallback = useCallback((...args: A) => {
-		argsRef.current = args;
+	const debouncedCallback = useCallback(
+		(...args: A) => {
+			argsRef.current = args;
 
-		cancel();
+			cancel();
 
-		timeout.current = setTimeout(() => {
-			if (argsRef.current) {
-				callbackRef.current(...argsRef.current);
-			}
-		}, wait);
-	}, [wait]);
+			timeout.current = setTimeout(() => {
+				if (argsRef.current) {
+					callbackRef.current(...argsRef.current);
+				}
+			}, wait);
+		},
+		[wait],
+	);
 
 	const cancel = useCallback(() => {
 		if (timeout.current) {

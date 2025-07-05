@@ -1,7 +1,12 @@
 'use client';
 import { useState, useRef, useCallback, useEffect, ChangeEvent } from 'react';
 import Portal from '@/app/lib/Portal';
-import { useClickOutside, useSearchParams, useEventListener, useDebouncedCallback } from '@/app/hooks';
+import {
+	useClickOutside,
+	useSearchParams,
+	useEventListener,
+	useDebouncedCallback,
+} from '@/app/hooks';
 import { fetchAPIData } from '@/app/lib/apiUtils';
 
 const url: string = 'https://autocomplete.clearbit.com/v1/companies/suggest?query=';
@@ -60,7 +65,7 @@ export default function AutoComplete() {
 		[updateParams, isLoading],
 	);
 
-	const { debouncedCallback } = useDebouncedCallback(fetchData, 500);
+	const { debouncedCallback } = useDebouncedCallback(fetchData, delay);
 
 	const handleChange = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -71,7 +76,7 @@ export default function AutoComplete() {
 				return;
 			}
 
-			debouncedCallback(searchText)
+			debouncedCallback(searchText);
 		},
 		[fetchData],
 	);

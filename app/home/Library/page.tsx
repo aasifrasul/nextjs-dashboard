@@ -1,100 +1,42 @@
 'use client';
-import React from 'react';
+import LibraryProvider from '@/app/context/LibraryProvider';
+import { LibraryForm } from './LibraryForm';
+import { BookList } from './BookList';
+import { SearchBar } from './SearchBar';
+import { LibraryStats } from './LibraryStats';
 
-import LibraryProvider, { useLibrary } from './LibraryProvider';
-
-import { Button } from '@/app/ui/button';
-
-interface Book {
-	id: number;
-	name: string;
-	author: string;
-	issued: boolean;
-}
-
-function LibraryContainer() {
-	const {
-		books,
-		searchText,
-		name,
-		setName,
-		author,
-		setAuthor,
-		setSearchText,
-		handleSubmit,
-		handleIssueBook,
-		handleDeleteBook,
-		handleEditBook,
-	} = useLibrary();
-
-	return (
-		<div>
-			<div className="flex align-tem-center">
-				<div>
-					<label htmlFor="name">Name</label>
-					<input
-						type="text"
-						name="name"
-						value={name}
-						onChange={(e) => setName(e.target.value || '')}
-					/>
-				</div>
-				<div>
-					<label htmlFor="author">Author</label>
-					<input
-						type="text"
-						name="author"
-						value={author}
-						onChange={(e) => setAuthor(e.target.value || '')}
-					/>
-				</div>
-				<div>
-					<Button className="bg-blue-300" onClick={handleSubmit}>
-						Submit
-					</Button>
-				</div>
-			</div>
-			<div>{'----------------------------------------------------------------'}</div>
-			<div>{'----------------------------------------------------------------'}</div>
-			<div>
-				<label htmlFor="searchText">Search Book</label>
-				<input
-					type="text"
-					name="searchText"
-					value={searchText}
-					onChange={(e) => setSearchText(e.target.value || '')}
-				/>
-			</div>
-			<div>
-				<ul>
-					{books?.length > 0 ? (
-						books.map(({ id, name, author, issued }) => {
-							return (
-								<li key={id}>
-									{name} {author} {issued ? 'UnAvailable' : 'Available'}
-									<Button onClick={() => handleIssueBook(id)}>
-										{issued ? 'Return' : 'Issue'}
-									</Button>
-									<Button onClick={() => handleEditBook(id)}>Edit</Button>
-									<Button onClick={() => handleDeleteBook(id)}>
-										Delete
-									</Button>
-								</li>
-							);
-						})
-					) : (
-						<li>No records found</li>
-					)}
-				</ul>
-			</div>
-		</div>
-	);
-}
-
-export default function Library() {
+export default function LibraryPage() {
 	return (
 		<LibraryProvider>
-			<LibraryContainer />
+			<div className="container mx-auto px-4 py-8">
+				<div className="max-w-4xl mx-auto">
+					<h1 className="text-3xl font-bold text-gray-900 mb-8">
+						Library Management
+					</h1>
+
+					{/* Statistics */}
+					<LibraryStats />
+
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+						{/* Left Column - Form */}
+						<div>
+							<h2 className="text-xl font-semibold text-gray-900 mb-4">
+								Add New Book
+							</h2>
+							<LibraryForm />
+						</div>
+
+						{/* Right Column - Search and List */}
+						<div>
+							<h2 className="text-xl font-semibold text-gray-900 mb-4">
+								Book Collection
+							</h2>
+							<SearchBar />
+							<BookList />
+						</div>
+					</div>
+				</div>
+			</div>
 		</LibraryProvider>
 	);
 }

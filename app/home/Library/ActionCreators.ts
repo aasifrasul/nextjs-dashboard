@@ -1,7 +1,7 @@
 import { ActionType, Action, Book } from './types';
 
 // Type-safe action creators
-export const setName = (name: string): Action => ({
+export const setTitle = (name: string): Action => ({
 	type: ActionType.SET_NAME,
 	payload: name,
 });
