@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 
-import { getShipSize, useBattleshipStore } from '../../stores/battleshipStore';
+import { getShipSize, useBattleshipStore } from '@/app/stores/battleshipStore';
 
 import { ShipType } from './types';
 

@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { SocketProvider } from '@/contexts/SocketContext';
 
 import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';

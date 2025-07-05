@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
-import { logger } from '../lib/Logger';
-import { executeQuery } from '../lib/db-utils';
-import { invoices, customers, revenue, users } from '../lib/placeholder-data';
+import { logger } from '@/app/lib/Logger';
+import { executeQuery } from '@/app/lib/db-utils';
+import { invoices, customers, revenue, users } from '@/app/lib/placeholder-data';
 
 export async function GET() {
 	try {
@@ -54,7 +54,8 @@ export async function GET() {
 		// 4. Insert users with hashed passwords
 		for (const user of users) {
 			const hashedPassword = await bcrypt.hash(user.password, 10);
-			await executeQuery(`
+			await executeQuery(
+				`
 				INSERT INTO users (id, name, email, password)
 				VALUES ($1, $2, $3, $4)
 				ON CONFLICT (email) DO UPDATE SET
@@ -67,7 +68,8 @@ export async function GET() {
 
 		// 5. Insert all customers
 		for (const customer of customers) {
-			await executeQuery(`
+			await executeQuery(
+				`
 				INSERT INTO customers (id, name, email, image_url)
 				VALUES ($1, $2, $3, $4)
 				ON CONFLICT (email) DO UPDATE SET
@@ -80,7 +82,8 @@ export async function GET() {
 
 		// 6. Insert revenue data
 		for (const rev of revenue) {
-			await executeQuery(`
+			await executeQuery(
+				`
 				INSERT INTO revenue (month, revenue)
 				VALUES ($1, $2)
 				ON CONFLICT (month) DO UPDATE SET
@@ -92,7 +95,8 @@ export async function GET() {
 
 		// 7. Insert invoices
 		for (const invoice of invoices) {
-			await executeQuery(`
+			await executeQuery(
+				`
 				INSERT INTO invoices (customer_id, amount, status, date)
 				VALUES ($1, $2, $3, $4)
 			`,

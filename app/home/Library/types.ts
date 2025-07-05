@@ -46,7 +46,7 @@ export interface InitialState {
 
 export interface LibraryContext extends InitialState {
 	handleSubmit: () => void;
-	setName: (name: string) => void;
+	setTitle: (name: string) => void;
 	setAuthor: (author: string) => void;
 	setSearchText: (searchText: string) => void;
 	handleEditBook: (id: number) => void;

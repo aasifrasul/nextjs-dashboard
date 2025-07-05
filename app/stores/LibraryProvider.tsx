@@ -1,7 +1,7 @@
-import React from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
 interface Props {
-	children: React.ReactNode;
+	children: ReactNode;
 }
 
 interface Book {
@@ -14,7 +14,7 @@ interface Book {
 interface InitialState {
 	books: Book[];
 	name: string;
-	setName: (name: string) => void;
+	setTitle: (name: string) => void;
 	author: string;
 	setAuthor: (author: string) => void;
 	searchText: string;
@@ -33,7 +33,7 @@ const initialState: InitialState = {
 	author: '',
 	searchText: '',
 	editingBook: null,
-	setName: () => {},
+	setTitle: () => {},
 	setAuthor: () => {},
 	setSearhText: () => {},
 	handleSubmit: () => {},
@@ -43,10 +43,10 @@ const initialState: InitialState = {
 	filterBooks: (text: string) => {},
 };
 
-const libraryContext = React.createContext<InitialState>(initialState);
+const libraryContext = createContext<InitialState>(initialState);
 
 export function useLibrary() {
-	const context = React.useContext(libraryContext);
+	const context = useContext(libraryContext);
 
 	if (!context) {
 		throw new Error('Please use inside LibraryProvider');
@@ -56,12 +56,12 @@ export function useLibrary() {
 }
 
 export default function LibraryProivder({ children }: Props) {
-	const [searchText, setSearhText] = React.useState<string>('');
-	const [name, setName] = React.useState<string>('');
-	const [author, setAuthor] = React.useState<string>('');
-	const [books, setBooks] = React.useState<Book[]>([]);
-	const [filteredBooks, setFilteredBooks] = React.useState<Book[]>([]);
-	const [editingBook, setEditingBook] = React.useState<Book | null>(null);
+	const [searchText, setSearhText] = useState<string>('');
+	const [name, setTitle] = useState<string>('');
+	const [author, setAuthor] = useState<string>('');
+	const [books, setBooks] = useState<Book[]>([]);
+	const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+	const [editingBook, setEditingBook] = useState<Book | null>(null);
 
 	const handleSubmit = () => {
 		if (isDisabled) return;
@@ -88,7 +88,7 @@ export default function LibraryProivder({ children }: Props) {
 			});
 		}
 
-		setName('');
+		setTitle('');
 		setAuthor('');
 		setEditingBook(null);
 	};
@@ -101,11 +101,11 @@ export default function LibraryProivder({ children }: Props) {
 
 		setEditingBook(currentBook);
 
-		setName(name);
+		setTitle(name);
 		setAuthor(author);
 	};
 
-	const handleDeleteBook = React.useCallback((id: number) => {
+	const handleDeleteBook = useCallback((id: number) => {
 		setBooks((prevBooks) => {
 			const index = prevBooks.findIndex((book) => book.id === id);
 			if (index >= 0) prevBooks.splice(index, 1);
@@ -141,7 +141,7 @@ export default function LibraryProivder({ children }: Props) {
 		setFilteredBooks(newBooks);
 	};
 
-	React.useEffect(() => {
+	useEffect(() => {
 		filterBooks(searchText);
 	}, [books]);
 
@@ -149,7 +149,7 @@ export default function LibraryProivder({ children }: Props) {
 
 	const value = {
 		name,
-		setName,
+		setTitle,
 		author,
 		setAuthor,
 		searchText,

@@ -1,5 +1,5 @@
 import { Pool, PoolConfig, PoolClient, QueryResult, QueryResultRow } from 'pg';
-import { logger } from './Logger';
+import { logger } from '@/app/lib/Logger';
 
 export interface PostgresDBConnectionConfig extends PoolConfig {
 	maxConnections?: number;
@@ -14,16 +14,11 @@ export class DatabaseConnectionError extends Error {
 }
 
 export class QueryExecutionError extends Error {
-	private _query: string;
+	public query: string;
 
 	constructor(message: string, query: string) {
 		super(message);
-		this.name = 'QueryExecutionError';
-		this._query = query;
-	}
-
-	public get query(): string {
-		return this._query;
+		this.query = query;
 	}
 }
 
@@ -61,28 +56,31 @@ export class PostgresDBConnection {
 	public static async getInstance(
 		config: PostgresDBConnectionConfig,
 	): Promise<PostgresDBConnection> {
-		if (!PostgresDBConnection.instance) {
-			PostgresDBConnection.instance = new PostgresDBConnection(config);
+		if (PostgresDBConnection.instance) return PostgresDBConnection.instance;
 
-			try {
-				await PostgresDBConnection.instance.testConnection();
-				logger.info('PostgresDBConnection instantiated');
-			} catch (err) {
-				PostgresDBConnection.instance = undefined as any; // Reset instance on failure
-				throw new DatabaseConnectionError(
-					`Failed to connect to database: ${(err as Error).message}`,
-				);
-			}
-		}
-
+		PostgresDBConnection.instance = await PostgresDBConnection.createInstance(config);
 		return PostgresDBConnection.instance;
+	}
+
+	private static async createInstance(
+		config: PostgresDBConnectionConfig,
+	): Promise<PostgresDBConnection> {
+		try {
+			const instance = new PostgresDBConnection(config);
+			await instance.testConnection();
+			return instance;
+		} catch (err) {
+			logger.error(`Failed to connect to database: ${(err as Error).message}`);
+			throw new DatabaseConnectionError(
+				`Failed to connect to database: ${(err as Error).message}`,
+			);
+		}
 	}
 
 	private async testConnection(): Promise<void> {
 		let client: PoolClient | null = null;
 		try {
 			client = await this.pool.connect();
-			logger.info('PostgresDBConnection Pool has an active client');
 		} catch (err) {
 			logger.error(`PostgresDBConnection Pool creation Error: ${(err as Error).stack}`);
 			throw err;
@@ -93,25 +91,19 @@ export class PostgresDBConnection {
 
 	public async executeQuery<T extends QueryResultRow = QueryResultRow>(
 		query: string,
-		params: any[] = [],
+		params?: any[],
 	): Promise<T[]> {
 		if (this.isShuttingDown) {
 			throw new Error('Database connection is shutting down, no new queries allowed');
 		}
 
-		logger.info(`Executing query: ${query}`);
-		logger.debug(`Query parameters: ${JSON.stringify(params)}`);
-
 		let client: PoolClient | null = null;
 		try {
 			client = await this.pool.connect();
 			const result: QueryResult<T> = await client.query(query, params);
-			logger.debug(`Query returned ${result.rowCount} rows`);
 			return result.rows;
 		} catch (err) {
-			logger.error(
-				`PostgresDBConnection executeQuery failed: ${(err as Error).stack} query: ${query} params: ${params?.toString()}`,
-			);
+			logger.error(`PostgresDBConnection executeQuery failed: ${(err as Error).stack}`);
 			throw new QueryExecutionError(
 				`Failed to execute query: ${(err as Error).message}`,
 				query,
@@ -126,7 +118,6 @@ export class PostgresDBConnection {
 		if (this.pool) {
 			try {
 				await this.pool.end();
-				logger.info('PostgresDBConnection Pool closed');
 			} catch (err) {
 				logger.error(
 					`PostgresDBConnection failed to close pool: ${(err as Error).stack}`,

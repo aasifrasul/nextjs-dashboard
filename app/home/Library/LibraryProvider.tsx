@@ -17,7 +17,7 @@ const initialState: InitialState = {
 
 const libraryContext = createContext<LibraryContext>({
 	...initialState,
-	setName: () => {},
+	setTitle: () => {},
 	setAuthor: () => {},
 	setSearchText: () => {},
 	handleSubmit: () => {},
@@ -41,8 +41,8 @@ export default function LibraryProvider({ children }: LibraryProivderProps) {
 	const { books, filteredBooks, name, author, searchText, editingBook } = state;
 
 	// Memoized handler functions
-	const setName = useCallback((name: string) => {
-		dispatch(actions.setName(name));
+	const setTitle = useCallback((name: string) => {
+		dispatch(actions.setTitle(name));
 	}, []);
 
 	const setAuthor = useCallback((author: string) => {
@@ -71,7 +71,7 @@ export default function LibraryProvider({ children }: LibraryProivderProps) {
 		}
 
 		// Reset form
-		dispatch(actions.setName(''));
+		dispatch(actions.setTitle(''));
 		dispatch(actions.setAuthor(''));
 		dispatch(actions.setEditingBook(null));
 	}, [name, author, editingBook]);
@@ -102,7 +102,7 @@ export default function LibraryProvider({ children }: LibraryProivderProps) {
 	const contextValue: LibraryContext = {
 		...state,
 		books: (searchText.length > 0 ? filteredBooks : books) || [],
-		setName,
+		setTitle,
 		setAuthor,
 		setSearchText: dbounce(setSearchText, 300),
 		handleSubmit,

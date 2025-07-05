@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TEST_PRODUCTS {
+  id       String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name     String? @db.VarChar(4000)
+  category String? @db.VarChar(4000)
+}
+
+model TEST_USERS {
+  id         String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  first_name String? @db.VarChar(4000)
+  last_name  String? @db.VarChar(4000)
+  age        Int?
+}
+
+model book_store {
+  id     String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title  String? @db.VarChar(4000)
+  author String? @db.VarChar(4000)
+  status String? @db.VarChar(4000)
+  issued Boolean @default(false)
+}
+
+model customers {
+  id        String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name      String     @db.VarChar(255)
+  email     String     @unique @db.VarChar(255)
+  image_url String     @db.VarChar(255)
+  invoices  invoices[]
+}
+
+model invoices {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  customer_id String    @db.Uuid
+  amount      Int
+  status      String    @db.VarChar(255)
+  date        DateTime  @db.Date
+  customers   customers @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model revenue {
+  month   String @id @db.VarChar(4)
+  revenue Int
+}
+
+model users {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name     String @db.VarChar(255)
+  email    String @unique
+  password String
+}
