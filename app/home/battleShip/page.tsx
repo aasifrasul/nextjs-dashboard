@@ -25,6 +25,20 @@ export default function BattleshipWith() {
 
 	const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
 
+	useEffect(() => {
+		const unsubscribe = useBattleshipStore.subscribe(
+			(state) => state.currentState,
+			(gameState) => {
+				if (gameState === 'gameover') {
+					// Show celebration animation
+					console.log('Game over!');
+				}
+			},
+		);
+
+		return unsubscribe;
+	}, []);
+
 	const handleCellClick = (player: Player, x: number, y: number) => {
 		if (currentState === 'setup' && player === currentPlayer) {
 			placeShip(player, x, y);
@@ -93,13 +107,20 @@ export default function BattleshipWith() {
 						))}
 					</div>
 				</div>
+				<div className={styles.setupProgress}>
+					<p>Ships placed: {setupPhase.placedShips[currentPlayer].length}/5</p>
+				</div>
 			</div>
 		);
 	};
 
 	const renderGameStatus = () => {
 		if (currentState === 'setup') {
-			return <div className={styles.gameStatus}>{currentState}</div>;
+			return (
+				<div className={styles.gameStatus}>
+					Setting up ships - Player {currentPlayer}
+				</div>
+			);
 		} else if (currentState === 'playing') {
 			return <div className={styles.gameStatus}>Current Player: {currentPlayer}</div>;
 		} else if (currentState === 'gameover') {
@@ -111,11 +132,18 @@ export default function BattleshipWith() {
 	};
 
 	const renderBoard = (player: Player, showShips: boolean) => {
-		// In setup phase, only show the current player's board
-		// In playing phase, show both boards but with different views
-		const grid = showShips
-			? players[player!].board.grid
-			: players[player === 1 ? 2 : 1].trackingGrid;
+		// Get the appropriate grid based on the context
+		let grid;
+		if (!player) return;
+		if (currentState === 'setup') {
+			// In setup phase, always show the player's own board
+			grid = players[player].board.grid;
+		} else {
+			// In playing phase, show ships for own board, tracking grid for opponent
+			grid = showShips
+				? players[player].board.grid
+				: players[player === 1 ? 2 : 1].trackingGrid;
+		}
 
 		const isCurrentPlayerBoard = player === currentPlayer;
 		const isSetupPhase = currentState === 'setup';
@@ -166,6 +194,80 @@ export default function BattleshipWith() {
 		);
 	};
 
+	const renderSetupPhase = () => {
+		return (
+			<div className={styles.gameContainer}>
+				<div className={styles.playerSection}>
+					<h2>Player {currentPlayer} - Place Your Ships</h2>
+					{renderBoard(currentPlayer, true)}
+				</div>
+
+				{/* Show the other player's progress */}
+				<div className={styles.playerSection}>
+					<h2>Player {currentPlayer === 1 ? 2 : 1} - Waiting</h2>
+					<div className={styles.waitingBoard}>
+						<p>
+							Ships placed:{' '}
+							{setupPhase.placedShips[currentPlayer === 1 ? 2 : 1].length}/5
+						</p>
+						<div className={styles.board}>
+							{Array(10)
+								.fill(null)
+								.map((_, y) => (
+									<div key={y} className={styles.row}>
+										{Array(10)
+											.fill(null)
+											.map((_, x) => (
+												<div
+													key={x}
+													className={`${styles.cell} ${styles.disabled}`}
+												>
+													?
+												</div>
+											))}
+									</div>
+								))}
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	};
+
+	const renderPlayingPhase = () => {
+		return (
+			<div className={styles.gameContainer}>
+				<div className={styles.playerSection}>
+					<h2>Player 1</h2>
+					<div className={styles.boardContainer}>
+						<div>
+							<h3>Your Board</h3>
+							{renderBoard(1, true)}
+						</div>
+						<div>
+							<h3>Opponent's Board</h3>
+							{renderBoard(2, false)}
+						</div>
+					</div>
+				</div>
+
+				<div className={styles.playerSection}>
+					<h2>Player 2</h2>
+					<div className={styles.boardContainer}>
+						<div>
+							<h3>Your Board</h3>
+							{renderBoard(2, true)}
+						</div>
+						<div>
+							<h3>Opponent's Board</h3>
+							{renderBoard(1, false)}
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	};
+
 	return (
 		<div className={styles.main}>
 			<div className={styles.header}>
@@ -177,43 +279,9 @@ export default function BattleshipWith() {
 				{renderSetupControls()}
 			</div>
 
-			<div className={styles.gameContainer}>
-				<div className={styles.playerSection}>
-					<h2>Player 1</h2>
-					{currentState === 'setup' ? (
-						// In setup phase, show own board
-						renderBoard(1, true)
-					) : (
-						// In playing phase, show own board and opponent's tracking grid
-						<div className={styles.boardContainer}>
-							<div>
-								<h3>Your Board</h3>
-								{renderBoard(1, true)}
-							</div>
-							<div>
-								<h3>Opponent's Board</h3>
-								{renderBoard(2, false)}
-							</div>
-						</div>
-					)}
-				</div>
-
-				{currentState !== 'setup' && (
-					<div className={styles.playerSection}>
-						<h2>Player 2</h2>
-						<div className={styles.boardContainer}>
-							<div>
-								<h3>Your Board</h3>
-								{renderBoard(2, true)}
-							</div>
-							<div>
-								<h3>Opponent's Board</h3>
-								{renderBoard(1, false)}
-							</div>
-						</div>
-					</div>
-				)}
-			</div>
+			{currentState === 'setup' && renderSetupPhase()}
+			{currentState === 'playing' && renderPlayingPhase()}
+			{currentState === 'gameover' && renderPlayingPhase()}
 		</div>
 	);
 }

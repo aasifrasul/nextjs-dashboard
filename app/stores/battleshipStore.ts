@@ -1,4 +1,3 @@
-// store/battleshipStore.ts
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
@@ -143,20 +142,41 @@ export const useBattleshipStore = create<BattleshipStore>()(
 					draft.setupPhase.placedShips[player].push(shipType);
 					draft.players[player].board.remainingShips++;
 
-					// Check if setup is complete
-					const allShipsPlaced = [1, 2].every((p) => {
-						return draft.setupPhase.placedShips[p as Player].length === 5;
-					});
+					// Check if current player has finished placing all ships
+					const currentPlayerDone =
+						draft.setupPhase.placedShips[player].length === 5;
 
-					if (allShipsPlaced) {
-						draft.currentState = 'playing';
-						draft.currentPlayer = 1;
-					} else {
-						// Switch to next player if current player is done
-						const currentPlayerDone =
-							draft.setupPhase.placedShips[player].length === 5;
-						if (currentPlayerDone) {
+					if (currentPlayerDone) {
+						// Check if both players have finished
+						const allPlayersFinished = [1, 2].every((p) => {
+							return draft.setupPhase.placedShips[p as Player].length === 5;
+						});
+
+						if (allPlayersFinished) {
+							// Both players finished - start the game
+							draft.currentState = 'playing';
+							draft.currentPlayer = 1;
+						} else {
+							// Switch to the other player for setup
 							draft.currentPlayer = player === 1 ? 2 : 1;
+							// Reset ship selection for the new player
+							draft.setupPhase.currentShipType = ShipType.Carrier;
+							draft.setupPhase.currentOrientation = Orientation.Horizontal;
+						}
+					} else {
+						// Current player hasn't finished - auto-select next available ship
+						const availableShips = [
+							ShipType.Carrier,
+							ShipType.Battleship,
+							ShipType.Cruiser,
+							ShipType.Submarine,
+							ShipType.Destroyer,
+						].filter(
+							(ship) => !draft.setupPhase.placedShips[player].includes(ship),
+						);
+
+						if (availableShips.length > 0) {
+							draft.setupPhase.currentShipType = availableShips[0];
 						}
 					}
 				});
@@ -212,7 +232,9 @@ export const useBattleshipStore = create<BattleshipStore>()(
 							ship.hits[hitIndex] = true;
 
 							// Check if ship is sunk
-							if (ship.hits.length === getShipSize(ship.type)) {
+							const shipSize = getShipSize(ship.type);
+							const hitCount = ship.hits.filter(Boolean).length;
+							if (hitCount === shipSize) {
 								ship.isSunk = true;
 								draft.players[targetPlayer].board.remainingShips--;
 
