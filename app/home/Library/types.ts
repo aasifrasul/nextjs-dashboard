@@ -6,7 +6,7 @@ export interface LibraryProivderProps {
 
 export interface Book {
 	id: number;
-	name: string;
+	title: string;
 	author: string;
 	issued: boolean;
 }
@@ -38,7 +38,7 @@ export type Action =
 export interface InitialState {
 	books: Book[];
 	filteredBooks?: Book[];
-	name: string;
+	title: string;
 	author: string;
 	searchText: string;
 	editingBook: Book | null;
@@ -46,7 +46,7 @@ export interface InitialState {
 
 export interface LibraryContext extends InitialState {
 	handleSubmit: () => void;
-	setTitle: (name: string) => void;
+	setTitle: (title: string) => void;
 	setAuthor: (author: string) => void;
 	setSearchText: (searchText: string) => void;
 	handleEditBook: (id: number) => void;

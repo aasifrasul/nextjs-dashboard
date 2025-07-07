@@ -9,7 +9,7 @@ import * as actions from './ActionCreators';
 const initialState: InitialState = {
 	books: [],
 	filteredBooks: [],
-	name: '',
+	title: '',
 	author: '',
 	searchText: '',
 	editingBook: null,
@@ -38,11 +38,11 @@ export function useLibrary() {
 
 export default function LibraryProvider({ children }: LibraryProivderProps) {
 	const [state, dispatch] = useReducer(libraryReducer, initialState);
-	const { books, filteredBooks, name, author, searchText, editingBook } = state;
+	const { books, filteredBooks, title, author, searchText, editingBook } = state;
 
 	// Memoized handler functions
-	const setTitle = useCallback((name: string) => {
-		dispatch(actions.setTitle(name));
+	const setTitle = useCallback((title: string) => {
+		dispatch(actions.setTitle(title));
 	}, []);
 
 	const setAuthor = useCallback((author: string) => {
@@ -55,15 +55,15 @@ export default function LibraryProvider({ children }: LibraryProivderProps) {
 	}, []);
 
 	const handleSubmit = useCallback(() => {
-		if (name.length <= 0 || author.length <= 0) return;
+		if (title.length <= 0 || author.length <= 0) return;
 
 		if (editingBook) {
-			dispatch(actions.updateBook({ ...editingBook, name, author }));
+			dispatch(actions.updateBook({ ...editingBook, title, author }));
 		} else {
 			dispatch(
 				actions.addBook({
 					id: Date.now(),
-					name,
+					title,
 					author,
 					issued: false,
 				}),
@@ -74,7 +74,7 @@ export default function LibraryProvider({ children }: LibraryProivderProps) {
 		dispatch(actions.setTitle(''));
 		dispatch(actions.setAuthor(''));
 		dispatch(actions.setEditingBook(null));
-	}, [name, author, editingBook]);
+	}, [title, author, editingBook]);
 
 	const handleEditBook = useCallback(
 		(id: number) => {

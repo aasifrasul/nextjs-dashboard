@@ -1,13 +1,22 @@
 import { useLibrary } from '@/app/context/LibraryProvider';
+import { useEffect, useRef } from 'react';
 
 export function LibraryForm() {
 	const { title, author, editingBook, isLoading, error, setTitle, setAuthor, handleSubmit } =
 		useLibrary();
 
+	const editRef = useRef<HTMLInputElement>(null);
+
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		await handleSubmit();
 	};
+
+	useEffect(() => {
+		if (editingBook && editRef.current) {
+			editRef.current.focus();
+		}
+	}, [editingBook]);
 
 	return (
 		<form onSubmit={onSubmit} className="space-y-4">
@@ -22,6 +31,7 @@ export function LibraryForm() {
 					Book Name
 				</label>
 				<input
+					ref={editRef}
 					type="text"
 					id="title"
 					value={title}
