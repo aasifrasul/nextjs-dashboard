@@ -114,7 +114,7 @@ export class PostgresDBConnection {
 	public async executeQuery<T extends QueryResultRow = QueryResultRow>(
 		query: string,
 		params?: any[],
-		options?: { useCache?: boolean; cacheTtl?: number }
+		options?: { useCache?: boolean; cacheTtl?: number },
 	): Promise<T[]> {
 		if (this.isShuttingDown) {
 			throw new Error('Database connection is shutting down, no new queries allowed');
@@ -158,7 +158,6 @@ export class PostgresDBConnection {
 			}
 
 			return result.rows;
-
 		} catch (err) {
 			logger.error(`PostgresDBConnection executeQuery failed: ${(err as Error).stack}`);
 			throw new QueryExecutionError(
@@ -172,7 +171,7 @@ export class PostgresDBConnection {
 
 	// Batch query execution for better performance
 	public async executeBatch<T extends QueryResultRow = QueryResultRow>(
-		queries: Array<{ query: string; params?: any[] }>
+		queries: Array<{ query: string; params?: any[] }>,
 	): Promise<T[][]> {
 		if (this.isShuttingDown) {
 			throw new Error('Database connection is shutting down, no new queries allowed');
@@ -202,7 +201,7 @@ export class PostgresDBConnection {
 
 	// Transaction support
 	public async executeTransaction<T>(
-		callback: (client: PoolClient) => Promise<T>
+		callback: (client: PoolClient) => Promise<T>,
 	): Promise<T> {
 		if (this.isShuttingDown) {
 			throw new Error('Database connection is shutting down, no new queries allowed');
@@ -236,7 +235,7 @@ export class PostgresDBConnection {
 	}
 
 	public async executeTransactionQueries<T extends QueryResultRow = QueryResultRow>(
-		queries: Array<{ query: string; params?: any[] }>
+		queries: Array<{ query: string; params?: any[] }>,
 	): Promise<T[][]> {
 		if (this.isShuttingDown) {
 			throw new Error('Database connection is shutting down, no new queries allowed');
@@ -311,7 +310,6 @@ export class PostgresDBConnection {
 }
 
 export type { QueryResultRow };
-
 
 /**
  * Usage
