@@ -21,10 +21,13 @@ export const usersApi = createApi({
 			providesTags: (result) =>
 				result
 					? [
-						...result.map(({ id }) => ({ type: 'User' as const, id })),
-						{ type: 'User', id: 'LIST' },
-					]
+							...result.map(({ id }) => ({ type: 'User' as const, id })),
+							{ type: 'User', id: 'LIST' },
+						]
 					: [{ type: 'User', id: 'LIST' }],
+			transformResponse: (response: any) => {
+				return response.data || response;
+			},
 		}),
 
 		// Get single user

@@ -10,7 +10,7 @@ import { tasksApi } from './tasksApi'; // Import your tasksApi
 
 // Entity adapter for normalized task storage
 const tasksAdapter = createEntityAdapter<Task>({
-	selectId: (task: Task): string => task.id,
+	//selectId: (task: Task): string => task.id,
 	sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 });
 
@@ -179,7 +179,7 @@ const tasksSlice = createSlice({
 
 			// Handle other task operations if they exist
 			.addMatcher(
-				tasksApi.endpoints.addTask?.matchFulfilled ?? (() => false),
+				tasksApi.endpoints.createTask?.matchFulfilled ?? (() => false),
 				(state, action) => {
 					tasksAdapter.addOne(state, action.payload);
 				},
@@ -257,8 +257,8 @@ export const selectFilteredTasks = (state: RootState) => {
 
 	// Apply sorting
 	filtered.sort((a, b) => {
-		let aValue = a[sortBy];
-		let bValue = b[sortBy];
+		let aValue: string | number = a[sortBy];
+		let bValue: string | number = b[sortBy];
 
 		if (sortBy === 'priority') {
 			const priorityOrder = { low: 1, medium: 2, high: 3 };

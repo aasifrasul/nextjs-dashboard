@@ -78,9 +78,9 @@ function TaskDashboard() {
 		}
 	};
 
-	const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
+	const handleUpdateTask = async (taskId: string) => {
 		try {
-			await updateTask({ id: taskId, updates }).unwrap();
+			await updateTask({ updates: editingTask, id: taskId }).unwrap();
 			showToast('Task updated successfully!', 'success');
 			setEditingTask(null);
 		} catch (error) {
@@ -148,15 +148,14 @@ function TaskDashboard() {
 				{toasts.map((toast) => (
 					<div
 						key={toast.id}
-						className={`px-4 py-3 rounded-md shadow-lg text-white ${
-							toast.type === 'success'
+						className={`px-4 py-3 rounded-md shadow-lg text-white ${toast.type === 'success'
 								? 'bg-green-500'
 								: toast.type === 'error'
 									? 'bg-red-500'
 									: toast.type === 'warning'
 										? 'bg-yellow-500'
 										: 'bg-blue-500'
-						}`}
+							}`}
 					>
 						{toast.message}
 					</div>
@@ -206,7 +205,10 @@ function TaskDashboard() {
 						<select
 							value={filters.status || ''}
 							onChange={(e) =>
-								handleFilterChange({ ...filters, status: e.target.value })
+								handleFilterChange({
+									...filters,
+									status: e.target.value as Task['status'],
+								})
 							}
 							className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 						>
@@ -219,7 +221,10 @@ function TaskDashboard() {
 						<select
 							value={filters.priority || ''}
 							onChange={(e) =>
-								handleFilterChange({ ...filters, priority: e.target.value })
+								handleFilterChange({
+									...filters,
+									priority: e.target.value as Task['priority'],
+								})
 							}
 							className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 						>
@@ -336,26 +341,24 @@ function TaskDashboard() {
 								</td>
 								<td className="px-6 py-4 whitespace-nowrap">
 									<span
-										className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-											task.status === 'completed'
+										className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${task.status === 'completed'
 												? 'bg-green-100 text-green-800'
 												: task.status === 'in_progress'
 													? 'bg-yellow-100 text-yellow-800'
 													: 'bg-gray-100 text-gray-800'
-										}`}
+											}`}
 									>
 										{task.status.replace('_', ' ')}
 									</span>
 								</td>
 								<td className="px-6 py-4 whitespace-nowrap">
 									<span
-										className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-											task.priority === 'high'
+										className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${task.priority === 'high'
 												? 'bg-red-100 text-red-800'
 												: task.priority === 'medium'
 													? 'bg-yellow-100 text-yellow-800'
 													: 'bg-green-100 text-green-800'
-										}`}
+											}`}
 									>
 										{task.priority}
 									</span>
@@ -435,7 +438,10 @@ function TaskDashboard() {
 								<select
 									value={newTask.priority}
 									onChange={(e) =>
-										setNewTask({ ...newTask, priority: e.target.value })
+										setNewTask({
+											...newTask,
+											priority: e.target.value as Task['priority'],
+										})
 									}
 									className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 								>
@@ -450,9 +456,13 @@ function TaskDashboard() {
 								</label>
 								<select
 									value={newTask.assigneeId}
-									onChange={(e) =>
-										setNewTask({ ...newTask, assigneeId: e.target.value })
-									}
+									onChange={(e) => {
+										const selectedIndex = e.target.selectedIndex - 1;
+										setNewTask({
+											...newTask,
+											assigneeId: users[selectedIndex].id,
+										});
+									}}
 									className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 								>
 									<option value="">Select assignee</option>
@@ -529,7 +539,7 @@ function TaskDashboard() {
 									onChange={(e) =>
 										setEditingTask({
 											...editingTask,
-											status: e.target.value,
+											status: e.target.value as Task['status'],
 										})
 									}
 									className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -548,7 +558,7 @@ function TaskDashboard() {
 									onChange={(e) =>
 										setEditingTask({
 											...editingTask,
-											priority: e.target.value,
+											priority: e.target.value as Task['priority'],
 										})
 									}
 									className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -564,12 +574,13 @@ function TaskDashboard() {
 								</label>
 								<select
 									value={editingTask.assigneeId}
-									onChange={(e) =>
+									onChange={(e) => {
+										const selectedIndex = e.target.selectedIndex - 1;
 										setEditingTask({
 											...editingTask,
-											assigneeId: e.target.value,
-										})
-									}
+											assigneeId: users[selectedIndex].id,
+										});
+									}}
 									className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 								>
 									<option value="">Select assignee</option>
@@ -589,7 +600,7 @@ function TaskDashboard() {
 								Cancel
 							</button>
 							<button
-								onClick={() => handleUpdateTask(editingTask.id, editingTask)}
+								onClick={() => handleUpdateTask(editingTask.id)}
 								className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
 							>
 								Update Task

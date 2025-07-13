@@ -25,9 +25,9 @@ export const tasksApi = createApi({
 			providesTags: (result) =>
 				result
 					? [
-						...result.map(({ id }) => ({ type: 'Task' as const, id })),
-						{ type: 'Task', id: 'LIST' },
-					]
+							...result.map(({ id }) => ({ type: 'Task' as const, id })),
+							{ type: 'Task', id: 'LIST' },
+						]
 					: [{ type: 'Task', id: 'LIST' }],
 			// Transform response for consistent data structure
 			transformResponse: (response: any) => {
@@ -52,8 +52,8 @@ export const tasksApi = createApi({
 			// Optimistic update
 			async onQueryStarted(newTask, { dispatch, queryFulfilled }) {
 				const optimisticTask: Task = {
+					...(newTask as Task),
 					id: `temp-${Date.now()}`,
-					...newTask,
 					createdAt: new Date().toISOString(),
 					updatedAt: new Date().toISOString(),
 				};
@@ -140,6 +140,9 @@ export const tasksApi = createApi({
 		>({
 			query: () => '/stats',
 			providesTags: ['TaskStats'],
+			transformResponse: (response: any) => {
+				return response.data || response;
+			},
 		}),
 
 		// Real-time updates simulation
@@ -172,10 +175,10 @@ export const tasksApi = createApi({
 					});
 				} catch {
 					// Handle connection errors
+				} finally {
+					await cacheEntryRemoved;
+					ws?.close();
 				}
-
-				await cacheEntryRemoved;
-				ws?.close();
 			},
 		}),
 	}),

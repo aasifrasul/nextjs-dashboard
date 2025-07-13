@@ -7,9 +7,10 @@ import {
 import { RootState } from '../../store';
 import { usersApi } from './usersApi';
 import { User } from '../users/types';
+import { boolean } from 'zod';
 
 const usersAdapter = createEntityAdapter<User>({
-	selectId: (user) => user.id,
+	// selectId: (user) => user.id,
 	sortComparer: (a, b) => a.name.localeCompare(b.name),
 });
 
@@ -35,7 +36,9 @@ interface UsersState {
 	ids: string[];
 	loading: boolean;
 	error: string | null;
+	currentUserId: string | null;
 	selectedUsers: string[];
+	onlineUsers: string[];
 	batchProcessing: boolean;
 	lastSync: number | null;
 	sortBy: 'createdAt' | 'updatedAt' | 'title' | 'priority';
@@ -43,8 +46,17 @@ interface UsersState {
 }
 
 const initialState: UsersState = usersAdapter.getInitialState({
-	currentUserId: null as string | null,
-	onlineUsers: [] as string[],
+	currentUserId: null,
+	selectedUsers: [],
+	onlineUsers: [],
+	loading: false,
+	error: null,
+	selectedusers: [],
+	batchProcessing: false,
+	lastSync: null,
+	searchTerm: '',
+	sortBy: 'createdAt' as const,
+	sortOrder: 'desc' as const,
 });
 
 const usersSlice = createSlice({
@@ -110,7 +122,7 @@ const usersSlice = createSlice({
 
 			// Handle other user operations if they exist
 			.addMatcher(
-				usersApi.endpoints.addUser?.matchFulfilled ?? (() => false),
+				usersApi.endpoints.createUser?.matchFulfilled ?? (() => false),
 				(state, action) => {
 					usersAdapter.addOne(state, action.payload);
 				},

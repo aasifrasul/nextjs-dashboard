@@ -1,6 +1,8 @@
-// lib/store/features/tasks/types.ts
+import { ObjectId } from 'mongodb';
+
 export interface Task {
-	id: string;
+	id?: string;
+	_id?: ObjectId;
 	title: string;
 	description?: string;
 	status: 'todo' | 'in_progress' | 'completed' | 'cancelled';
@@ -14,6 +16,11 @@ export interface Task {
 	actualHours?: number;
 	parentTaskId?: string;
 	subtasks?: string[];
+}
+
+// MongoDB document interface (for internal database operations)
+export interface TaskDocument extends Omit<Task, 'id'> {
+	_id: ObjectId;
 }
 
 export interface TaskFilters {
@@ -53,7 +60,8 @@ export interface UpdateTaskData {
 
 // User types
 export interface User {
-	id: string;
+	id?: string;
+	_id?: ObjectId;
 	name: string;
 	email: string;
 	avatar?: string;

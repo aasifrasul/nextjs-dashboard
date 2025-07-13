@@ -1,8 +1,11 @@
-// app/api/tasks/stats/route.ts
 import { NextResponse } from 'next/server';
-import { tasks } from '@/app/api/tasks/mockData'; // Adjust the path to your mockData
+import { getCollection } from '@/app/lib/dbClients/mongodb';
+import { Task } from '@/app/lib/store/features/tasks/types';
 
 export async function GET() {
+	const collection = await getCollection<Task>('tasks');
+	const tasks: Task[] = await collection.find({}).toArray();
+
 	const stats = {
 		total: tasks.length,
 		completed: tasks.filter((t) => t.status === 'completed').length,

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { User } from '@/app/lib/store/features/tasks/types'; // Make sure this path is correct
+import { User } from '@/app/lib/store/features/tasks/types';
+import { getCollection } from '@/app/lib/dbClients/mongodb';
 
 let users: User[] = [
 	{
@@ -23,6 +24,14 @@ let users: User[] = [
 ];
 
 export async function GET() {
+	const usersCollection = await getCollection<User>('users');
+	const results: User[] = await usersCollection.find().toArray();
+	console.log(`users`, results);
+	const users = results.map((doc) => ({
+			id: doc._id,
+			...doc,
+			_id: undefined,
+		}));
 	return NextResponse.json({
 		data: users,
 		status: 'success',
