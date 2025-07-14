@@ -1,6 +1,8 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 import type { RootState, AppDispatch } from './store';
+
+type TimeoutId = ReturnType<typeof setTimeout>;
 
 // Typed hooks
 export const useAppDispatch = () => useDispatch<AppDispatch>();
@@ -94,15 +96,50 @@ export const useLoading = (key: string) => {
 export const useNotifications = () => {
 	const dispatch = useAppDispatch();
 	const notifications = useAppSelector((state) => state.notifications);
+	const timeoutRefs = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
 	const addNotification = useCallback(
-		(notification: Omit<Notification, 'id'>) => {
+		(notification: Omit<Notification, 'id'>, autoDismiss = true, dismissAfter = 5000) => {
+			const id = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
 			dispatch({
 				type: 'notifications/addNotification',
 				payload: {
 					...notification,
-					id: `notification-${Date.now()}`,
+					id,
 				},
+			});
+
+			// Auto-dismiss after specified time
+			if (autoDismiss) {
+				const timeoutId = setTimeout(() => {
+					dispatch({
+						type: 'notifications/removeNotification',
+						payload: id,
+					});
+					timeoutRefs.current.delete(id);
+				}, dismissAfter);
+
+				timeoutRefs.current.set(id, timeoutId);
+			}
+
+			return id; // Return ID for manual dismissal if needed
+		},
+		[dispatch],
+	);
+
+	const removeNotification = useCallback(
+		(id: string) => {
+			// Clear timeout if exists
+			const timeoutId = timeoutRefs.current.get(id);
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+				timeoutRefs.current.delete(id);
+			}
+
+			dispatch({
+				type: 'notifications/removeNotification',
+				payload: id,
 			});
 		},
 		[dispatch],
@@ -122,11 +159,33 @@ export const useNotifications = () => {
 		dispatch({ type: 'notifications/markAllAsRead' });
 	}, [dispatch]);
 
+	const clearAllNotifications = useCallback(() => {
+		// Clear all timeouts
+		timeoutRefs.current.forEach((timeoutId) => {
+			clearTimeout(timeoutId);
+		});
+		timeoutRefs.current.clear();
+
+		dispatch({ type: 'notifications/clearAllNotifications' });
+	}, [dispatch]);
+
+	// Cleanup timeouts on unmount
+	useEffect(() => {
+		return () => {
+			timeoutRefs.current.forEach((timeoutId) => {
+				clearTimeout(timeoutId);
+			});
+			timeoutRefs.current.clear();
+		};
+	}, []);
+
 	return {
 		notifications: notifications.ids.map((id) => notifications.entities[id]),
 		unreadCount: notifications.unreadCount,
 		addNotification,
+		removeNotification,
 		markAsRead,
 		markAllAsRead,
+		clearAllNotifications,
 	};
 };

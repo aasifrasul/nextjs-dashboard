@@ -87,13 +87,10 @@ export interface UpdateUserData {
 // Notification types
 export interface Notification {
 	id: string;
-	type: 'task_created' | 'task_updated' | 'task_assigned' | 'task_completed' | 'reminder';
-	title: string;
 	message: string;
-	read: boolean;
+	type: 'success' | 'error' | 'warning' | 'info';
 	createdAt: string;
-	taskId?: string;
-	userId?: string;
+	read: boolean;
 }
 
 // API Response types
