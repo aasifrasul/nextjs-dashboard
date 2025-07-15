@@ -14,6 +14,16 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
+		name: 'Test',
+		href: '/home/test',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'Tasks',
+		href: '/home/tasks',
+		icon: DocumentDuplicateIcon,
+	},
+	{
 		name: 'BattleShip',
 		href: '/home/battleShip',
 		icon: DocumentDuplicateIcon,

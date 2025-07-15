@@ -13,8 +13,8 @@ export function LibraryForm() {
 	};
 
 	useEffect(() => {
-		if (editingBook && editRef.current) {
-			editRef.current.focus();
+		if (editingBook) {
+			editRef.current?.focus();
 		}
 	}, [editingBook]);
 

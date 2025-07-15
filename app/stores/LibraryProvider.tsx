@@ -143,7 +143,7 @@ export default function LibraryProivder({ children }: Props) {
 
 	useEffect(() => {
 		filterBooks(searchText);
-	}, [books]);
+	}, [searchText]);
 
 	const isDisabled = name?.length <= 0 || author?.length <= 0;
 

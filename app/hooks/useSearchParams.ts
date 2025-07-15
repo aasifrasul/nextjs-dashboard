@@ -6,22 +6,18 @@ import { useEventListener } from '.';
 export function useSearchParams() {
 	const [isInitialized, setIsInitialized] = useState(false);
 	// Initialize with current URL search params
-	const [searchParams, setSearchParams] = useState<URLSearchParams>(getNewSearchParams());
+	const [searchParams, setSearchParams] = useState<URLSearchParams>(new URLSearchParams());
 
 	useEventListener('popstate', handlePopState, globalThis);
 
 	useEffect(() => {
-		setSearchParams(getNewSearchParams());
+		setSearchParams(new URLSearchParams(globalThis.location?.search));
 	}, []);
 
 	const getPageURL = useCallback(
 		(): string => `${globalThis.location.pathname}?${searchParams.toString()}`,
 		[searchParams],
 	);
-
-	function getNewSearchParams() {
-		return new URLSearchParams(globalThis.location?.search);
-	}
 
 	useEffect(() => {
 		if (!isInitialized) {

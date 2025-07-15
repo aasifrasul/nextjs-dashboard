@@ -30,7 +30,8 @@
 		".next/types/**/*.ts",
 		"app/lib/placeholder-data.ts",
 		"scripts/seed.js",
-		"app/types"
+		"app/types",
+		"app/api/users"
 	],
 	"exclude": ["node_modules"]
 }
