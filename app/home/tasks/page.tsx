@@ -22,11 +22,8 @@ import {
 	processTaskBatch,
 	selectFilteredTasks,
 } from '@/app/lib/store/features/tasks/tasksSlice';
-import {
-	openModal,
-	closeModal,
-	selectActiveModal,
-} from '@/app/lib/store/features/ui/uiSlice';
+import { openModal, closeModal, selectActiveModal } from '@/app/lib/store/features/ui/uiSlice';
+import { useUsers } from '@/app/lib/store/features/users/hooks';
 import { Task, TaskFilters } from '@/app/lib/store/features/tasks/types';
 import { StoreProvider } from '@/app/lib/store/provider';
 import { Badge } from '@/app/ui/Badge';
@@ -53,7 +50,7 @@ function TaskDashboard() {
 		isLoading: tasksLoading,
 		error: tasksError,
 	} = useGetTasksQuery({});
-	const { data: users = [], isLoading: usersLoading } = useGetUsersQuery();
+	const { users } = useUsers();
 	const { data: stats, isLoading: statsLoading } = useGetTaskStatsQuery();
 
 	// Mutations
@@ -79,31 +76,43 @@ function TaskDashboard() {
 	// Handlers
 	const handleCreateTask = async (data: TaskFormData) => {
 		if (!data.title.trim()) {
-			addNotification({
-				message: 'Please enter a task title',
-				type: 'error',
-				createdAt: new Date().toISOString(),
-				read: false,
-			}, true, 4000); // Auto-dismiss after 4 seconds
+			addNotification(
+				{
+					message: 'Please enter a task title',
+					type: 'error',
+					createdAt: new Date().toISOString(),
+					read: false,
+				},
+				true,
+				4000,
+			); // Auto-dismiss after 4 seconds
 			return;
 		}
 
 		try {
 			await createTask(data).unwrap();
 			dispatch(closeModal());
-			addNotification({
-				message: 'Task created successfully!',
-				type: 'success',
-				createdAt: new Date().toISOString(),
-				read: false,
-			}, true, 3000); // Auto-dismiss after 3 seconds
+			addNotification(
+				{
+					message: 'Task created successfully!',
+					type: 'success',
+					createdAt: new Date().toISOString(),
+					read: false,
+				},
+				true,
+				3000,
+			); // Auto-dismiss after 3 seconds
 		} catch (error) {
-			addNotification({
-				message: 'Failed to create task',
-				type: 'error',
-				createdAt: new Date().toISOString(),
-				read: false,
-			}, true, 5000); // Keep errors longer
+			addNotification(
+				{
+					message: 'Failed to create task',
+					type: 'error',
+					createdAt: new Date().toISOString(),
+					read: false,
+				},
+				true,
+				5000,
+			); // Keep errors longer
 		}
 	};
 
@@ -112,69 +121,97 @@ function TaskDashboard() {
 
 		try {
 			await updateTask({ updates: data, id: editingTask.id }).unwrap();
-			addNotification({
-				message: 'Task updated successfully!',
-				type: 'success',
-				createdAt: new Date().toISOString(),
-				read: false,
-			}, true, 3000);
+			addNotification(
+				{
+					message: 'Task updated successfully!',
+					type: 'success',
+					createdAt: new Date().toISOString(),
+					read: false,
+				},
+				true,
+				3000,
+			);
 			setEditingTask(null);
 			dispatch(closeModal());
 		} catch (error) {
-			addNotification({
-				message: 'Failed to update task',
-				type: 'error',
-				createdAt: new Date().toISOString(),
-				read: false,
-			}, true, 5000);
+			addNotification(
+				{
+					message: 'Failed to update task',
+					type: 'error',
+					createdAt: new Date().toISOString(),
+					read: false,
+				},
+				true,
+				5000,
+			);
 		}
 	};
 
 	const handleDeleteTask = async (taskId: string) => {
 		try {
 			await deleteTask(taskId).unwrap();
-			addNotification({
-				message: 'Task deleted successfully!',
-				type: 'success',
-				createdAt: new Date().toISOString(),
-				read: false,
-			}, true, 3000);
+			addNotification(
+				{
+					message: 'Task deleted successfully!',
+					type: 'success',
+					createdAt: new Date().toISOString(),
+					read: false,
+				},
+				true,
+				3000,
+			);
 		} catch (error) {
-			addNotification({
-				message: 'Failed to delete task',
-				type: 'error',
-				createdAt: new Date().toISOString(),
-				read: false,
-			}, true, 5000);
+			addNotification(
+				{
+					message: 'Failed to delete task',
+					type: 'error',
+					createdAt: new Date().toISOString(),
+					read: false,
+				},
+				true,
+				5000,
+			);
 		}
 	};
 
 	const handleBatchProcess = async () => {
 		if (selectedTasks.length === 0) {
-			addNotification({
-				message: 'Please select tasks to process',
-				type: 'warning',
-				createdAt: new Date().toISOString(),
-				read: false,
-			}, true, 3000);
+			addNotification(
+				{
+					message: 'Please select tasks to process',
+					type: 'warning',
+					createdAt: new Date().toISOString(),
+					read: false,
+				},
+				true,
+				3000,
+			);
 			return;
 		}
 
 		try {
 			await dispatch(processTaskBatch(selectedTasks)).unwrap();
-			addNotification({
-				message: `Processed ${selectedTasks.length} tasks`,
-				type: 'success',
-				createdAt: new Date().toISOString(),
-				read: false,
-			}, true, 4000);
+			addNotification(
+				{
+					message: `Processed ${selectedTasks.length} tasks`,
+					type: 'success',
+					createdAt: new Date().toISOString(),
+					read: false,
+				},
+				true,
+				4000,
+			);
 		} catch (error) {
-			addNotification({
-				message: 'Batch processing failed',
-				type: 'error',
-				createdAt: new Date().toISOString(),
-				read: false,
-			}, true, 5000);
+			addNotification(
+				{
+					message: 'Batch processing failed',
+					type: 'error',
+					createdAt: new Date().toISOString(),
+					read: false,
+				},
+				true,
+				5000,
+			);
 		}
 	};
 
@@ -229,14 +266,6 @@ function TaskDashboard() {
 		);
 	}
 
-	// Convert notifications to format expected by Notifications component
-	const toasts = notifications.map(notification => ({
-		show: true,
-		message: notification.message,
-		type: notification.type,
-		id: notification.id,
-	}));
-
 	return (
 		<div className="max-w-7xl mx-auto p-6 relative">
 			<Notifications maxVisible={3} position="top-right" />
@@ -255,8 +284,18 @@ function TaskDashboard() {
 					color="red"
 				>
 					<button className="p-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-gray-100">
-						<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM21 12c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10 10 4.477 10 10z" />
+						<svg
+							className="w-6 h-6"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M15 17h5l-5 5v-5zM21 12c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10 10 4.477 10 10z"
+							/>
 						</svg>
 					</button>
 				</Badge>

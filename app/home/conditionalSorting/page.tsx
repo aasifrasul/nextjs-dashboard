@@ -29,11 +29,8 @@ export default function App() {
 	};
 
 	// Helper function to sort books using existing hash
-	const sortBooks = (bookList: string[]) => {
-		return [...bookList].sort((a, b) => {
-			return hash.current[a].localeCompare(hash.current[b]);
-		});
-	};
+	const sortBooks = (bookList: string[]) =>
+		[...bookList].sort((a, b) => hash.current[a].localeCompare(hash.current[b]));
 
 	// Initialize hash and sorted list only once
 	React.useEffect(() => {

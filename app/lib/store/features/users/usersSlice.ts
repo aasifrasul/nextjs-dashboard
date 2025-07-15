@@ -1,25 +1,19 @@
-import {
-	createSlice,
-	createAsyncThunk,
-	createEntityAdapter,
-	PayloadAction,
-} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../store';
 import { usersApi } from './usersApi';
 import { User } from '../users/types';
-import { boolean } from 'zod';
 
-const usersAdapter = createEntityAdapter<User>({
-	// selectId: (user) => user.id,
-	sortComparer: (a, b) => a.name.localeCompare(b.name),
-});
-
-// Async thunk for complex operations
+// Keep async thunks for complex business logic only
 export const processUserBatch = createAsyncThunk(
 	'users/processUserBatch',
 	async (userIds: string[], { getState, dispatch }) => {
 		const state = getState() as RootState;
-		const users = userIds.map((id) => state.users.entities[id]).filter(Boolean);
+
+		// Get users from RTK Query cache instead of slice
+		const usersResult = usersApi.endpoints.getUsers.select()(state);
+		const users = userIds
+			.map((id) => usersResult.data?.find((user) => user.id === id))
+			.filter(Boolean);
 
 		// Simulate complex processing
 		await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -32,32 +26,29 @@ export const processUserBatch = createAsyncThunk(
 );
 
 interface UsersState {
-	entities: Record<string, User>;
-	ids: string[];
-	loading: boolean;
-	error: string | null;
+	// Only app-specific state, not API state
 	currentUserId: string | null;
 	selectedUsers: string[];
 	onlineUsers: string[];
 	batchProcessing: boolean;
-	lastSync: number | null;
-	sortBy: 'createdAt' | 'updatedAt' | 'title' | 'priority';
-	sortOrder: 'asc' | 'desc';
+	uiState: {
+		sortBy: 'createdAt' | 'updatedAt' | 'name' | 'priority';
+		sortOrder: 'asc' | 'desc';
+		searchTerm: string;
+	};
 }
 
-const initialState: UsersState = usersAdapter.getInitialState({
+const initialState: UsersState = {
 	currentUserId: null,
 	selectedUsers: [],
 	onlineUsers: [],
-	loading: false,
-	error: null,
-	selectedusers: [],
 	batchProcessing: false,
-	lastSync: null,
-	searchTerm: '',
-	sortBy: 'createdAt' as const,
-	sortOrder: 'desc' as const,
-});
+	uiState: {
+		sortBy: 'createdAt',
+		sortOrder: 'desc',
+		searchTerm: '',
+	},
+};
 
 const usersSlice = createSlice({
 	name: 'users',
@@ -65,6 +56,21 @@ const usersSlice = createSlice({
 	reducers: {
 		setCurrentUser: (state, action: PayloadAction<string>) => {
 			state.currentUserId = action.payload;
+		},
+
+		toggleUserSelection: (state, action: PayloadAction<string>) => {
+			const userId = action.payload;
+			const index = state.selectedUsers.indexOf(userId);
+
+			if (index === -1) {
+				state.selectedUsers.push(userId);
+			} else {
+				state.selectedUsers.splice(index, 1);
+			}
+		},
+
+		clearUserSelection: (state) => {
+			state.selectedUsers = [];
 		},
 
 		setOnlineUsers: (state, action: PayloadAction<string[]>) => {
@@ -80,83 +86,84 @@ const usersSlice = createSlice({
 		removeOnlineUser: (state, action: PayloadAction<string>) => {
 			state.onlineUsers = state.onlineUsers.filter((id) => id !== action.payload);
 		},
+
+		updateUiState: (state, action: PayloadAction<Partial<UsersState['uiState']>>) => {
+			state.uiState = { ...state.uiState, ...action.payload };
+		},
 	},
 	extraReducers: (builder) => {
 		builder
-			// Process batch async thunk
+			// Only handle complex business logic, not basic CRUD
 			.addCase(processUserBatch.pending, (state) => {
 				state.batchProcessing = true;
 			})
-			.addCase(processUserBatch.fulfilled, (state, action) => {
+			.addCase(processUserBatch.fulfilled, (state) => {
 				state.batchProcessing = false;
-				state.lastSync = action.payload.timestamp;
-				// Clear selection after processing
-				state.selectedUsers = [];
+				state.selectedUsers = []; // Clear selection after processing
 			})
-			.addCase(processUserBatch.rejected, (state, action) => {
+			.addCase(processUserBatch.rejected, (state) => {
 				state.batchProcessing = false;
-				state.error = action.error.message || 'Batch processing failed';
-			})
-
-			// RTK Query extraReducers - Alternative approach using isAnyOf
-			.addMatcher(usersApi.endpoints.getUsers.matchPending ?? (() => false), (state) => {
-				state.loading = true;
-				state.error = null;
-			})
-			.addMatcher(
-				usersApi.endpoints.getUsers.matchFulfilled ?? (() => false),
-				(state, action) => {
-					state.loading = false;
-					// This is the crucial part - add the fetched users to the store
-					usersAdapter.setAll(state, action.payload);
-					state.lastSync = Date.now();
-				},
-			)
-			.addMatcher(
-				usersApi.endpoints.getUsers.matchRejected ?? (() => false),
-				(state, action) => {
-					state.loading = false;
-					state.error = action.error.message || 'Failed to fetch users';
-				},
-			)
-
-			// Handle other user operations if they exist
-			.addMatcher(
-				usersApi.endpoints.createUser?.matchFulfilled ?? (() => false),
-				(state, action) => {
-					usersAdapter.addOne(state, action.payload);
-				},
-			)
-			.addMatcher(
-				usersApi.endpoints.updateUser?.matchFulfilled ?? (() => false),
-				(state, action) => {
-					usersAdapter.updateOne(state, {
-						id: action.payload.id,
-						changes: action.payload,
-					});
-				},
-			)
-			.addMatcher(
-				usersApi.endpoints.deleteUser?.matchFulfilled ?? (() => false),
-				(state, action) => {
-					usersAdapter.removeOne(state, action.meta.arg.originalArgs);
-				},
-			);
+			});
 	},
 });
 
-export const { setCurrentUser, setOnlineUsers, addOnlineUser, removeOnlineUser } =
-	usersSlice.actions;
-
 export const {
-	selectAll: selectAllUsers,
-	selectById: selectUserById,
-	selectIds: selectUserIds,
-} = usersAdapter.getSelectors((state: RootState) => state.users);
+	setCurrentUser,
+	toggleUserSelection,
+	clearUserSelection,
+	setOnlineUsers,
+	addOnlineUser,
+	removeOnlineUser,
+	updateUiState,
+} = usersSlice.actions;
 
-export const selectCurrentUser = (state: RootState) =>
-	state.users.currentUserId ? state.users.entities[state.users.currentUserId] : null;
+// Selectors that combine RTK Query data with slice state
+export const selectCurrentUser = (state: RootState) => {
+	const { currentUserId } = state.users;
+	const usersResult = usersApi.endpoints.getUsers.select()(state);
+
+	return currentUserId && usersResult.data
+		? usersResult.data.find((user) => user.id === currentUserId) || null
+		: null;
+};
+
+export const selectSelectedUsers = (state: RootState) => {
+	const { selectedUsers } = state.users;
+	const usersResult = usersApi.endpoints.getUsers.select()(state);
+
+	return selectedUsers
+		.map((id) => usersResult.data?.find((user) => user.id === id))
+		.filter(Boolean) as User[];
+};
+
+export const selectSortedFilteredUsers = (state: RootState) => {
+	const usersResult = usersApi.endpoints.getUsers.select()(state);
+	const { uiState } = state.users;
+
+	if (!usersResult.data) return [];
+
+	let users = [...usersResult.data];
+
+	// Filter
+	if (uiState.searchTerm) {
+		users = users.filter((user) =>
+			user.name.toLowerCase().includes(uiState.searchTerm.toLowerCase()),
+		);
+	}
+
+	// Sort
+	users.sort((a, b) => {
+		const aVal = a[uiState.sortBy];
+		const bVal = b[uiState.sortBy];
+		const comparison = aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+		return uiState.sortOrder === 'desc' ? -comparison : comparison;
+	});
+
+	return users;
+};
 
 export const selectOnlineUsers = (state: RootState) => state.users.onlineUsers;
+export const selectBatchProcessing = (state: RootState) => state.users.batchProcessing;
+export const selectUiState = (state: RootState) => state.users.uiState;
 
 export default usersSlice.reducer;

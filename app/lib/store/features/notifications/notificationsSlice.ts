@@ -1,13 +1,6 @@
 import { createSlice, createEntityAdapter, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../store';
-
-export interface Notification {
-	id: string;
-	message: string;
-	type: 'success' | 'error' | 'warning' | 'info';
-	createdAt: string;
-	read: boolean;
-}
+import { Notification } from '@/app/lib/store//features/tasks/types';
 
 const notificationsAdapter = createEntityAdapter<Notification>({
 	sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),

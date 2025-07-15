@@ -28,26 +28,24 @@ export function useTimer(autoStart = false): TimeElapsed & TimerControls {
 		}
 	};
 
-	const startTimer = () => {
+	const start = () => {
 		if (startTime.current) {
-			stopTimer();
+			stop();
 		}
 
 		startTime.current = Date.now() - elapsedTime.current;
 		updateTime();
 	};
 
-	const stopTimer = () => {
+	const stop = () => {
 		if (animationFrameId.current) {
 			cancelAnimationFrame(animationFrameId.current);
 			animationFrameId.current = null;
 		}
 	};
 
-	const stop = () => stopTimer();
-	const start = () => startTimer();
 	const reset = () => {
-		stopTimer();
+		stop();
 		startTime.current = null;
 		elapsedTime.current = 0;
 		setTime({ seconds: 0, milliseconds: 0 });
@@ -55,9 +53,9 @@ export function useTimer(autoStart = false): TimeElapsed & TimerControls {
 
 	useEffect(() => {
 		if (autoStart) {
-			startTimer();
+			start();
 		}
-		return stopTimer;
+		return stop;
 	}, []);
 
 	return { ...time, stop, start, reset };

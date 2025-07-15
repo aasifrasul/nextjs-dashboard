@@ -1,6 +1,7 @@
+'use client';
 import React from 'react';
 
-import * as styles from './styles.module.css';
+import styles from './styles.module.css';
 
 const DigitalClock = () => {
 	const [timeString, setTimeString] = React.useState('');
@@ -31,17 +32,19 @@ const DigitalClock = () => {
 		setTimeString(() => timeText);
 
 		// Schedule the next update
-		timerRef.current = setTimeout(
-			() => getCurrentTime(format),
-			1000,
-		) as unknown as NodeJS.Timeout;
+		const msUntilNextSecond = 1000 - new Date().getMilliseconds();
+		setTimeout(() => {
+			getCurrentTime('24-hour');
+			setInterval(() => getCurrentTime('24-hour'), 1000);
+		}, msUntilNextSecond);
 	}
 
 	React.useEffect(() => {
 		getCurrentTime('24-hour');
-		return () => {
-			clearTimer();
-		};
+
+		const interval = setInterval(() => getCurrentTime('24-hour'), 1000);
+
+		return () => clearInterval(interval);
 	}, []);
 
 	return <div className={styles.clock}>{timeString}</div>;

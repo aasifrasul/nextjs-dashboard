@@ -18,5 +18,8 @@ export interface TaskModalProps {
 }
 
 export interface Toast {
-	show: boolean; message: string; type: string; id: string;
+	show: boolean;
+	message: string;
+	type: string;
+	id: string;
 }

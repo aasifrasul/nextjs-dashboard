@@ -28,10 +28,10 @@ export async function GET() {
 	const results: User[] = await usersCollection.find().toArray();
 	console.log(`users`, results);
 	const users = results.map((doc) => ({
-			id: doc._id,
-			...doc,
-			_id: undefined,
-		}));
+		id: doc._id,
+		...doc,
+		_id: undefined,
+	}));
 	return NextResponse.json({
 		data: users,
 		status: 'success',
