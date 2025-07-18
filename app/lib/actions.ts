@@ -3,9 +3,10 @@ import { AuthError } from 'next-auth';
 import z from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { executeQuery } from './db-utils';
+
+import { executeQuery } from '@/app/lib/db-utils';
 import { signIn, signOut } from '@/auth';
-import { logger } from '../lib/Logger';
+import { logger } from '@/app/lib/Logger';
 
 const FormSchema = z.object({
 	id: z.string(),

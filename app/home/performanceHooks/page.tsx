@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useState, useTransition, useDeferredValue, useMemo } from 'react';
 
-import CATEGORIES from './data.json';
+import products from './data.json';
 
 // Move large list outside of the component to prevent re-creation
 const LARGE_LIST = Array.from({ length: 10000 }, (_, i) => `Item ${i + 1}`);
@@ -30,14 +30,12 @@ export default function Page() {
 		});
 	};
 
-	const [products] = useState(CATEGORIES);
 	const [filterTerm, setFilterTerm] = useState('');
 	const deferredFilterTerm = useDeferredValue(filterTerm);
 
 	const filteredProducts = useMemo(() => {
-		return products.filter((product) =>
-			product.name.toLowerCase().includes(deferredFilterTerm.toLowerCase()),
-		);
+		const searchText = deferredFilterTerm.toLowerCase();
+		return products.filter(({ name }) => name.toLowerCase().includes(searchText));
 	}, [products, deferredFilterTerm]);
 
 	return (
