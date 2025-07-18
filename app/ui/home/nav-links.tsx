@@ -14,11 +14,6 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
-		name: 'Test',
-		href: '/home/test',
-		icon: DocumentDuplicateIcon,
-	},
-	{
 		name: 'Tasks',
 		href: '/home/tasks',
 		icon: DocumentDuplicateIcon,
@@ -66,6 +61,11 @@ const links = [
 	{
 		name: 'Conditional Sorting',
 		href: '/home/conditionalSorting',
+		icon: DocumentDuplicateIcon,
+	},
+	{
+		name: 'Test',
+		href: '/home/test',
 		icon: DocumentDuplicateIcon,
 	},
 ];

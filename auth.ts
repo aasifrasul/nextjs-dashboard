@@ -3,28 +3,16 @@ import bcrypt from 'bcrypt';
 import z from 'zod';
 import Credentials from 'next-auth/providers/credentials';
 
-import { authConfig } from './auth.config';
-import type { User } from './app/lib/definitions';
-import { logger } from './app/lib/Logger';
-import { executeQuery } from './app/lib/db-utils';
-
-async function getUser(email: string): Promise<User | null> {
-	try {
-		const query = 'SELECT id, email, password, name FROM users WHERE email = $1';
-		const params = [email];
-		const users: User[] = await executeQuery(query, params);
-		return users[0] || null; // Return null if no user found
-	} catch (err) {
-		logger.error('Database Error: Failed to fetch user.');
-		return null;
-	}
-}
+import { getUserByEmail } from '@/app/lib/database';
+import { authConfig } from '@/auth.config';
+import type { User } from '@/app/lib/definitions';
+import { logger } from '@/app/lib/Logger';
 
 const stripPassword = (user: User): Omit<User, 'password'> => {
 	const { password, ...userWithoutPassword } = user;
 	return {
 		...userWithoutPassword,
-		id: user.id.toString(), // Ensure id is string
+		id: user.id.toString(),
 	};
 };
 
@@ -42,7 +30,7 @@ export const { auth, signIn, signOut } = NextAuth({
 
 				if (parsedCredentials.success) {
 					const { email, password } = parsedCredentials.data;
-					const user = await getUser(email);
+					const user = await getUserByEmail(email);
 
 					if (!user) {
 						logger.info('User not found');

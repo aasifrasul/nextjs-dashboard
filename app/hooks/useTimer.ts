@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface TimeElapsed {
 	seconds: number;
@@ -17,7 +17,7 @@ export function useTimer(autoStart = false): TimeElapsed & TimerControls {
 	const animationFrameId = useRef<number | null>(null);
 	const [time, setTime] = useState<TimeElapsed>({ seconds: 0, milliseconds: 0 });
 
-	const updateTime = () => {
+	const updateTime = useCallback(() => {
 		if (startTime.current) {
 			elapsedTime.current = Date.now() - startTime.current;
 			setTime({
@@ -26,37 +26,37 @@ export function useTimer(autoStart = false): TimeElapsed & TimerControls {
 			});
 			animationFrameId.current = requestAnimationFrame(updateTime);
 		}
-	};
+	}, []);
 
-	const start = () => {
+	const stop = useCallback(() => {
+		if (animationFrameId.current) {
+			cancelAnimationFrame(animationFrameId.current);
+			animationFrameId.current = null;
+		}
+	}, []);
+
+	const start = useCallback(() => {
 		if (startTime.current) {
 			stop();
 		}
 
 		startTime.current = Date.now() - elapsedTime.current;
 		updateTime();
-	};
+	}, [stop, updateTime]);
 
-	const stop = () => {
-		if (animationFrameId.current) {
-			cancelAnimationFrame(animationFrameId.current);
-			animationFrameId.current = null;
-		}
-	};
-
-	const reset = () => {
+	const reset = useCallback(() => {
 		stop();
 		startTime.current = null;
 		elapsedTime.current = 0;
 		setTime({ seconds: 0, milliseconds: 0 });
-	};
+	}, [stop]);
 
 	useEffect(() => {
 		if (autoStart) {
 			start();
 		}
 		return stop;
-	}, []);
+	}, [autoStart, start, stop]);
 
 	return { ...time, stop, start, reset };
 }

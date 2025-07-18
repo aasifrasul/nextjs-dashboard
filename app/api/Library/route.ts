@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { LibraryService, handleServiceError } from '@/app/lib/services/libraryService';
+import { LibraryService, handleServiceError } from '@/app/lib/services/LibraryService';
 import { z } from 'zod';
 
 // Validation schemas

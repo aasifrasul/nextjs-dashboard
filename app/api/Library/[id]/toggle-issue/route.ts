@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { LibraryService, handleServiceError } from '@/app/lib/services/libraryService';
+import { LibraryService, handleServiceError } from '@/app/lib/services/LibraryService';
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
 	try {

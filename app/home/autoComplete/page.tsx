@@ -27,6 +27,7 @@ export default function AutoComplete() {
 
 	const modalContainerRef = useRef<HTMLDivElement | null>(null);
 	const searchCacheRef = useRef<Record<string, Item[]>>({});
+	const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
 	const { searchParams, updateParams } = useSearchParams();
 
@@ -62,24 +63,43 @@ export default function AutoComplete() {
 
 			setIsLoading(false);
 		},
-		[updateParams, isLoading],
+		[updateParams],
 	);
 
-	const { debouncedCallback } = useDebouncedCallback(fetchData, delay);
+	const { debouncedCallback, cancel } = useDebouncedCallback(fetchData, delay);
 
-	const handleChange = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			const searchText = e.target.value || '';
-			setText(searchText);
-			if (searchText.length <= 0) {
-				handleClear();
-				return;
-			}
+	useEffect(() => {
+		if (text.length === 0) {
+			cancel();
+			setItems([]);
+			return;
+		}
+		debouncedCallback(text);
+		return cancel;
+	}, [text, debouncedCallback, cancel]);
 
-			debouncedCallback(searchText);
-		},
-		[fetchData],
-	);
+	/*const debouncedFetch = useCallback((searchText: string) => {
+		if (debounceRef.current) {
+			clearTimeout(debounceRef.current);
+		}
+
+		debounceRef.current = setTimeout(() => {
+			fetchData(searchText);
+		}, delay)
+	}, [fetchData]);
+
+	// Dedicated useEffect for debounced fetch - this is the single source of truth
+	useEffect(() => {
+		if (text.length > 0) {
+			debouncedFetch(text);
+		} else {
+			setItems([]);
+		}
+	}, [text, debouncedFetch]);*/
+
+	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+		setText(e.target.value || '');
+	};
 
 	const handleClick = (index: number) => {
 		setCurrentItem(items[index]);
@@ -98,14 +118,13 @@ export default function AutoComplete() {
 		setCurrentItem(null);
 	};
 
+	// Handle URL params on mount/change
 	useEffect(() => {
 		const searchText = searchParams.get('searchText') || '';
-		if (searchText.length === 0) return;
-		setText(searchText);
-
-		// Set new timer for URL param-based search
-		debouncedCallback(searchText);
-	}, [searchParams, fetchData]);
+		if (searchText.length > 0) {
+			setText(searchText); // This will trigger the debounced fetch useEffect
+		}
+	}, [searchParams]);
 
 	// Handle outside click for search results list
 	useEffect(() => {
@@ -198,8 +217,8 @@ export default function AutoComplete() {
 				</div>
 			</div>
 			{/* Modal Portal */}
-			{isModalOpen && (
-				<Portal container={modalContainerRef.current!}>
+			{isModalOpen && modalContainerRef.current && (
+				<Portal container={modalContainerRef.current}>
 					{' '}
 					{/* Non-null assertion as it's guaranteed to be mounted */}
 					<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
