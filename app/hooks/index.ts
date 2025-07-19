@@ -5,4 +5,6 @@ export { useTimer } from '@/app/hooks/useTimer';
 export { useClickOutside } from '@/app/hooks/useClickOutside';
 export { useToggle } from '@/app/hooks/useToggle';
 export { useDebouncedCallback } from '@/app/hooks/useDebouncedCallback';
-export { useDebounce } from '@/app/hooks/useDebounce';
+export { useDebounced } from '@/app/hooks/useDebounced';
+export { useCompanySearch } from '@/app/hooks/useCompanySearch';
+export { useAppDispatch, useAppSelector } from '@/app/hooks/redux';

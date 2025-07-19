@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useCallback, createContext, useContext, useMemo } from 'react';
-import { useDebounce } from '@/app/hooks';
+import { useDebounced } from '@/app/hooks';
 import { LibraryApiClient, useApiError } from '@/app/api/Library/LibraryClient';
 import {
 	LibraryProviderProps,
@@ -47,7 +47,7 @@ export default function LibraryProvider({ children }: LibraryProviderProps) {
 	const { books, isLoading, error, title, author, searchText, editingBook } = state;
 
 	// Debounced search text for API calls
-	const debouncedSearchText = useDebounce(searchText, 300);
+	const debouncedSearchText = useDebounced(searchText, 300);
 
 	// Fetch books from API
 	const fetchBooks = useCallback(

@@ -7,7 +7,11 @@ interface PortalProps {
 	className?: string;
 }
 
-export default function Portal({ container = document.body, children, className }: PortalProps) {
+export default function Portal({
+	container = document.body,
+	children,
+	className,
+}: PortalProps) {
 	const [isMounted, setIsMounted] = useState(false);
 	const rootRef = useRef<HTMLDivElement | null>(null);
 
