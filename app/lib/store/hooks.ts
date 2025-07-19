@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
-import type { RootState, AppDispatch } from './store';
+import type { RootState, AppDispatch } from '@/app/stores';
 import { Notification } from './features/tasks/types';
 
 // Typed hooks

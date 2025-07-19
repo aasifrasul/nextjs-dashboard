@@ -4,7 +4,7 @@ import {
 	createEntityAdapter,
 	PayloadAction,
 } from '@reduxjs/toolkit';
-import { RootState } from '../../store';
+import { RootState } from '@/app/stores';
 import { Task, TaskFilters } from './types';
 import { tasksApi } from './tasksApi'; // Import your tasksApi
 
