@@ -14,7 +14,6 @@ import {
 	useDeleteTaskMutation,
 	useGetTaskStatsQuery,
 } from '@/app/lib/store/features/tasks/tasksApi';
-import { useGetUsersQuery } from '@/app/lib/store/features/users/usersApi';
 import {
 	setFilters,
 	setSearchTerm,
@@ -25,7 +24,7 @@ import {
 import { openModal, closeModal, selectActiveModal } from '@/app/lib/store/features/ui/uiSlice';
 import { useUsers } from '@/app/lib/store/features/users/hooks';
 import { Task, TaskFilters } from '@/app/lib/store/features/tasks/types';
-import { StoreProvider } from '@/app/lib/store/provider';
+import { StoreProvider } from '@/app/stores/provider';
 import { Badge } from '@/app/ui/Badge';
 
 import { TaskModal } from './TaskModal';
@@ -40,7 +39,7 @@ function TaskDashboard() {
 	const dispatch = useAppDispatch();
 	const { selectedTasks, selectTask, deselectTask, selectAllTasks, clearSelection } =
 		useTaskSelection();
-	const { notifications, addNotification } = useNotifications();
+	const { addNotification } = useNotifications();
 	const { unreadCount } = useNotifications();
 	const [showNotifications, setShowNotifications] = useState(false);
 

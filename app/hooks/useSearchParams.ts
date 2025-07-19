@@ -5,7 +5,6 @@ import { useEventListener } from '.';
 
 export function useSearchParams() {
 	const [isInitialized, setIsInitialized] = useState(false);
-	// Initialize with current URL search params
 	const [searchParams, setSearchParams] = useState<URLSearchParams>(new URLSearchParams());
 
 	useEventListener('popstate', handlePopState, globalThis);
@@ -25,12 +24,17 @@ export function useSearchParams() {
 			return;
 		}
 
-		globalThis.history.replaceState(
-			{ searchParams: searchParams.toString() },
-			'',
-			getPageURL(),
-		);
-	}, [searchParams, getPageURL, isInitialized]);
+		const newURL = `${globalThis.location.pathname}?${searchParams.toString()}`;
+
+		// Only update if the URL has actually changed
+		if (globalThis.location.href !== newURL) {
+			globalThis.history.replaceState(
+				{ searchParams: searchParams.toString() },
+				'',
+				newURL,
+			);
+		}
+	}, [searchParams, isInitialized]);
 
 	function handlePopState(event: PopStateEvent) {
 		// Get params from event state if available, otherwise from URL

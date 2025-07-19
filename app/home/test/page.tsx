@@ -14,11 +14,11 @@ export default function App() {
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setText(e.target.value);
-	}
+	};
 
 	const handleClick = () => {
 		setShow((prev: boolean) => !prev);
-	}
+	};
 
 	React.useEffect(() => {
 		const interval = setInterval(() => {

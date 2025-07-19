@@ -177,7 +177,7 @@ export const tasksApi = createApi({
 					// Handle connection errors
 				} finally {
 					await cacheEntryRemoved;
-					ws?.close();
+					ws!.close();
 				}
 			},
 		}),

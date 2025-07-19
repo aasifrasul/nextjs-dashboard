@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { RootState } from '../../store';
+import { RootState } from '@/app/stores';
 
 interface UIState {
 	sidebarOpen: boolean;

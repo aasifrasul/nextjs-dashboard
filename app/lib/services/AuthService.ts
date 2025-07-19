@@ -34,9 +34,7 @@ export const rolePermissions: Record<UserRole, Permission[]> = {
 		Permission.VIEW_ANALYTICS,
 		Permission.EXPORT_DATA,
 	],
-	[UserRole.USER]: [
-		Permission.VIEW_DASHBOARD,
-	],
+	[UserRole.USER]: [Permission.VIEW_DASHBOARD],
 };
 
 export class AuthService {
@@ -109,14 +107,14 @@ export class AuthService {
 	 * Check if user has any of the specified permissions
 	 */
 	static hasAnyPermission(userRole: UserRole, permissions: Permission[]): boolean {
-		return permissions.some(permission => this.hasPermission(userRole, permission));
+		return permissions.some((permission) => this.hasPermission(userRole, permission));
 	}
 
 	/**
 	 * Check if user has all specified permissions
 	 */
 	static hasAllPermissions(userRole: UserRole, permissions: Permission[]): boolean {
-		return permissions.every(permission => this.hasPermission(userRole, permission));
+		return permissions.every((permission) => this.hasPermission(userRole, permission));
 	}
 
 	/**
@@ -164,7 +162,7 @@ export class AuthService {
 // Server action helper for permission checking
 export async function withPermission<T>(
 	permission: Permission,
-	action: () => Promise<T>
+	action: () => Promise<T>,
 ): Promise<T> {
 	await AuthService.requirePermission(permission);
 	return action();

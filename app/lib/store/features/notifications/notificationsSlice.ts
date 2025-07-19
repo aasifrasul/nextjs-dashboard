@@ -1,5 +1,5 @@
 import { createSlice, createEntityAdapter, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from '../../store';
+import { RootState } from '@/app/stores';
 import { Notification } from '@/app/lib/store//features/tasks/types';
 
 const notificationsAdapter = createEntityAdapter<Notification>({

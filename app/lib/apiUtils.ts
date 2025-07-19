@@ -27,18 +27,23 @@ export class NetworkError extends Error {
 }
 
 export class HTTPError extends Error {
-	constructor(public status: number, message: string) {
+	constructor(
+		public status: number,
+		message: string,
+	) {
 		super(message);
 		this.name = 'HTTPError';
 	}
 }
 
 function isResponseLike(obj: any): obj is ResponseLike {
-	return obj &&
+	return (
+		obj &&
 		typeof obj === 'object' &&
 		'ok' in obj &&
 		typeof obj.ok === 'boolean' &&
-		typeof obj.json === 'function';
+		typeof obj.json === 'function'
+	);
 }
 
 export async function handleAsyncCalls<T>(promise: Promise<T>): Promise<Result<T>> {
@@ -56,10 +61,7 @@ export async function handleAsyncCalls<T>(promise: Promise<T>): Promise<Result<T
 	}
 }
 
-export async function fetchAPIData<T>(
-	url: string,
-	options?: RequestInit
-): Promise<Result<T>> {
+export async function fetchAPIData<T>(url: string, options?: RequestInit): Promise<Result<T>> {
 	const result = await handleAsyncCalls(fetch(url, options));
 
 	if (!result.success) {
