@@ -1,10 +1,12 @@
-import { useLibrary } from '@/app/context/LibraryProvider';
+import { useBooks } from './useQueryHooks';
+import { Book } from './types';
 
 export function LibraryStats() {
-	const { books } = useLibrary();
+	const { data = [] } = useBooks();
+	const books = data as Book[];
 
-	const totalBooks = books.length;
-	const issuedBooks = books.filter((book) => book.issued).length;
+	const totalBooks = books?.length;
+	const issuedBooks = books?.filter((book) => book.issued).length;
 	const availableBooks = totalBooks - issuedBooks;
 
 	return (

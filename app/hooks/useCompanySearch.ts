@@ -13,9 +13,7 @@ export const useCompanySearch = ({ searchText, enabled = true }: UseCompanySearc
 	return useQuery({
 		queryKey: ['companies', searchText],
 		queryFn: async (): Promise<CompanyItem[]> => {
-			if (!searchText.trim()) {
-				return [];
-			}
+			if (!searchText.trim()) return [];
 
 			const result = await fetchAPIData(`${COMPANY_SEARCH_URL}${searchText}`);
 

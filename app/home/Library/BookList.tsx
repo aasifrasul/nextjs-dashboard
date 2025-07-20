@@ -1,4 +1,4 @@
-import { useLibrary } from '@/app/context/LibraryProvider';
+import { useLibrary } from './useHooks';
 import { Book } from '@/app/types/Library';
 
 interface BookItemProps {
@@ -83,7 +83,7 @@ export function BookList() {
 		return (
 			<div className="text-center py-8">
 				<div className="text-red-600 mb-2">Error loading books</div>
-				<p className="text-gray-600">{error}</p>
+				<p className="text-gray-600">{error?.message}</p>
 			</div>
 		);
 	}
