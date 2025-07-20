@@ -1,4 +1,4 @@
-import { useLibrary } from '@/app/context/LibraryProvider';
+import { useLibrary } from './useHooks';
 import { useEffect, useRef } from 'react';
 
 export function LibraryForm() {
@@ -22,7 +22,7 @@ export function LibraryForm() {
 		<form onSubmit={onSubmit} className="space-y-4">
 			{error && (
 				<div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-					{error}
+					{error.message}
 				</div>
 			)}
 

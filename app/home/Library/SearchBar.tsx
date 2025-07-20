@@ -1,4 +1,4 @@
-import { useLibrary } from '@/app/context/LibraryProvider';
+import { useLibrary } from './useHooks';
 
 export function SearchBar() {
 	const { searchText, setSearchText } = useLibrary();
