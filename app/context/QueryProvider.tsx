@@ -14,7 +14,7 @@ const queryClient = new QueryClient({
 	},
 });
 
-export function LibraryQueryProvider({ children }: { children: React.ReactNode }) {
+export function QueryProvider({ children }: { children: React.ReactNode }) {
 	return (
 		<QueryClientProvider client={queryClient}>
 			{children}

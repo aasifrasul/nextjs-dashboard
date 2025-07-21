@@ -1,16 +1,13 @@
 'use client';
 import React from 'react';
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
-const queryClient = new QueryClient();
+import { useQuery } from '@tanstack/react-query';
+import { QueryProvider } from '@/app/context/QueryProvider';
 
 export default function App() {
 	return (
-		<QueryClientProvider client={queryClient}>
-			<ReactQueryDevtools />
+		<QueryProvider>
 			<Example />
-		</QueryClientProvider>
+		</QueryProvider>
 	);
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { HomeIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+import { DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';

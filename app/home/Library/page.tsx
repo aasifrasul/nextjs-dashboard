@@ -1,5 +1,5 @@
 'use client';
-import { LibraryQueryProvider } from '@/app/context/LibraryQueryProvider';
+import { QueryProvider } from '@/app/context/QueryProvider';
 import { LibraryForm } from './LibraryForm';
 import { BookList } from './BookList';
 import { SearchBar } from './SearchBar';
@@ -7,7 +7,7 @@ import { LibraryStats } from './LibraryStats';
 
 export default function LibraryPage() {
 	return (
-		<LibraryQueryProvider>
+		<QueryProvider>
 			<div className="container mx-auto px-4 py-8">
 				<div className="max-w-4xl mx-auto">
 					<h1 className="text-3xl font-bold text-gray-900 mb-8">
@@ -37,6 +37,6 @@ export default function LibraryPage() {
 					</div>
 				</div>
 			</div>
-		</LibraryQueryProvider>
+		</QueryProvider>
 	);
 }

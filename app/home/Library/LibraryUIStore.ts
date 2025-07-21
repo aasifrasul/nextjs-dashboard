@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+
 import { Book } from './types';
 
 interface LibraryUIState {
@@ -13,14 +15,16 @@ interface LibraryUIState {
 	clearForm: () => void;
 }
 
-export const useLibraryUIStore = create<LibraryUIState>((set) => ({
-	title: '',
-	author: '',
-	searchText: '',
-	editingBook: null,
-	setTitle: (title) => set({ title }),
-	setAuthor: (author) => set({ author }),
-	setSearchText: (searchText) => set({ searchText }),
-	setEditingBook: (editingBook) => set({ editingBook }),
-	clearForm: () => set({ title: '', author: '', editingBook: null }),
-}));
+export const useLibraryUIStore = create<LibraryUIState>()(
+	immer((set) => ({
+		title: '',
+		author: '',
+		searchText: '',
+		editingBook: null,
+		setTitle: (title) => set({ title }),
+		setAuthor: (author) => set({ author }),
+		setSearchText: (searchText) => set({ searchText }),
+		setEditingBook: (editingBook) => set({ editingBook }),
+		clearForm: () => set({ title: '', author: '', editingBook: null }),
+	})),
+);
