@@ -17,26 +17,21 @@ export function useLibrary() {
 	const toggleIssueMutation = useToggleIssueBook();
 
 	const handleSubmit = async () => {
-		const { title, author, editingBook } = uiState;
+		const { editingBook } = uiState;
+		const title = uiState.title.trim();
+		const author = uiState.author.trim();
 
-		if (!title.trim() || !author.trim()) {
+		if (!title || !author) {
 			// You might want to add a toast/notification system here
 			console.error('Please fill in both title and author fields');
 			return;
 		}
 
-		if (editingBook) {
-			updateBookMutation.mutate({
-				id: editingBook.id,
-				data: { title: title.trim(), author: author.trim() },
-			});
-		} else {
-			createBookMutation.mutate({
-				title: title.trim(),
-				author: author.trim(),
-				issued: false,
-			});
-		}
+		const data = { title, author }
+
+		editingBook ?
+			updateBookMutation.mutate({ id: editingBook.id, data }) :
+			createBookMutation.mutate({ ...data, issued: false });
 	};
 
 	const handleEditBook = (book: Book) => {
@@ -53,28 +48,25 @@ export function useLibrary() {
 		toggleIssueMutation.mutate(id);
 	};
 
-	const isLoading =
-		booksQuery.isLoading ||
-		createBookMutation.isPending ||
-		updateBookMutation.isPending ||
-		deleteBookMutation.isPending ||
-		toggleIssueMutation.isPending;
-
 	return {
 		// Data
 		books: booksQuery.data || [],
 
 		// Loading states
-		isLoading,
+		isLoading: booksQuery.isLoading,
+		createBookPednding: createBookMutation.isPending,
+		updateBookPending: updateBookMutation.isPending,
+		deleteBookPednding: deleteBookMutation.isPending,
+		toggleIssuePednding: toggleIssueMutation.isPending,
+
 		isFetching: booksQuery.isFetching,
 
 		// Error handling
-		error:
-			booksQuery.error ||
-			createBookMutation.error ||
-			updateBookMutation.error ||
-			deleteBookMutation.error ||
-			toggleIssueMutation.error,
+		error: booksQuery.error,
+		createBookError: createBookMutation.error,
+		updateBookError: updateBookMutation.error,
+		deleteBookError: deleteBookMutation.error,
+		toggleIssueError: toggleIssueMutation.error,
 
 		// UI state
 		...uiState,
