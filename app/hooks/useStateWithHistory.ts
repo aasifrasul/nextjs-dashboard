@@ -53,8 +53,8 @@ export function useStateWithHistory(initialState: any, capacity: number, storage
 				newQueue.push(value);
 
 				// 4. Update the current index to point to the newly added item
-				// This needs to be done within the setQueue's functional update
-				// to ensure it's based on the newQueue's length.
+				// This is done inside the setQueue callback to ensure both state updates
+				// are batched together by React, preventing race conditions.
 				setCurrentIndex(newQueue.length - 1);
 
 				return newQueue;

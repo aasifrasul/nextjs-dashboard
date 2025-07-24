@@ -5,7 +5,7 @@ import { useStateWithHistory } from './useStateWithHistory';
 export default function App() {
 	const [color, push, undo, redo, reset, goTo] = useStateWithHistory(
 		'#ffffff',
-		2,
+		3,
 		'color-history'
 	) ?? ['#ffffff'];
 
