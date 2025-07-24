@@ -8,3 +8,4 @@ export { useDebouncedCallback } from './useDebouncedCallback';
 export { useDebounced } from './useDebounced';
 export { useCompanySearch } from './useCompanySearch';
 export { useAppDispatch, useAppSelector } from './redux';
+export { useStateWithHistory } from './useStateWithHistory';

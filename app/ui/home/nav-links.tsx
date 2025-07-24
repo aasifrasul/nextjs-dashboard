@@ -14,6 +14,11 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
+		name: 'UseStateWithHistory',
+		href: '/home/useStateWithHistory',
+		icon: DocumentDuplicateIcon,
+	},
+	{
 		name: 'Tasks',
 		href: '/home/tasks',
 		icon: DocumentDuplicateIcon,
@@ -39,11 +44,6 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
-		name: 'Tanstack Query',
-		href: '/home/tanstack-query',
-		icon: DocumentDuplicateIcon,
-	},
-	{
 		name: 'Stop Watch',
 		href: '/home/stopWatch',
 		icon: DocumentDuplicateIcon,
@@ -61,11 +61,6 @@ const links = [
 	{
 		name: 'Conditional Sorting',
 		href: '/home/conditionalSorting',
-		icon: DocumentDuplicateIcon,
-	},
-	{
-		name: 'Test',
-		href: '/home/test',
 		icon: DocumentDuplicateIcon,
 	},
 ];
