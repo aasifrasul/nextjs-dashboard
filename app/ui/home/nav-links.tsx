@@ -29,6 +29,11 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
+		name: 'RapidFireQuiz',
+		href: '/home/RapidFireQuiz',
+		icon: DocumentDuplicateIcon,
+	},
+	{
 		name: 'Drag & Drop',
 		href: '/home/drag-drop',
 		icon: DocumentDuplicateIcon,
@@ -44,11 +49,6 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
-		name: 'Stop Watch',
-		href: '/home/stopWatch',
-		icon: DocumentDuplicateIcon,
-	},
-	{
 		name: 'Tic Tac Toe',
 		href: '/home/tictactoe',
 		icon: DocumentDuplicateIcon,
@@ -56,11 +56,6 @@ const links = [
 	{
 		name: 'Performance Hooks',
 		href: '/home/performanceHooks',
-		icon: DocumentDuplicateIcon,
-	},
-	{
-		name: 'Conditional Sorting',
-		href: '/home/conditionalSorting',
 		icon: DocumentDuplicateIcon,
 	},
 ];
