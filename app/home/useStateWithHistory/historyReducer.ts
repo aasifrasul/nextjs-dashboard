@@ -1,7 +1,6 @@
 export interface HistoryState {
 	queue: any[];
 	currentIndex: number;
-	storageKey?: string;
 }
 
 export type HistoryAction =
@@ -23,14 +22,12 @@ export function historyReducer(state: HistoryState, action: HistoryAction): Hist
 			if (newQueue.length > action.capacity) {
 				newQueue.shift();
 				return {
-					...state,
 					queue: newQueue,
 					currentIndex: newQueue.length - 1,
 				};
 			}
 
 			return {
-				...state,
 				queue: newQueue,
 				currentIndex: newQueue.length - 1,
 			};
@@ -52,7 +49,6 @@ export function historyReducer(state: HistoryState, action: HistoryAction): Hist
 
 		case 'RESET': {
 			return {
-				...state,
 				queue: [action.initialState],
 				currentIndex: 0,
 			};
@@ -67,11 +63,8 @@ export function historyReducer(state: HistoryState, action: HistoryAction): Hist
 		}
 
 		case 'INITIALIZE': {
-			return {
-				...state,
-				queue: action.state.queue,
-				currentIndex: action.state.currentIndex,
-			};
+			const { queue, currentIndex } = action.state;
+			return { queue, currentIndex };
 		}
 
 		default:

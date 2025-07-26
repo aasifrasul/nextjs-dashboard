@@ -28,7 +28,6 @@ export function useStateWithHistory(initialState: any, capacity: number, storage
 	const [{ queue, currentIndex }, dispatch] = useReducer(historyReducer, {
 		queue: [initialState],
 		currentIndex: 0,
-		storageKey,
 	});
 
 	// Load data from storage on mount

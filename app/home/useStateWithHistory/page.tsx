@@ -3,11 +3,15 @@ import './styles.css';
 import { useStateWithHistory } from './useStateWithHistory';
 
 export default function App() {
-	const {state: color, push, undo, redo, reset, goTo, isLoading} = useStateWithHistory(
-		'#ffffff',
-		10,
-		'color-history'
-	) ?? ['#ffffff'];
+	const {
+		state: color,
+		push,
+		undo,
+		redo,
+		reset,
+		goTo,
+		isLoading,
+	} = useStateWithHistory('#ffffff', 10, 'color-history') ?? ['#ffffff'];
 
 	if (isLoading) {
 		return <div>Loading...</div>; // Or a skeleton
@@ -38,7 +42,8 @@ export default function App() {
 	);
 }
 
-const styles = {
+// const styles: { [key: string]: React.CSSProperties } = {
+const styles: Record<string, React.CSSProperties> = {
 	container: {
 		height: '100vh',
 		transition: 'background-color 0.3s ease',
