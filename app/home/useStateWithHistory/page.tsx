@@ -1,13 +1,17 @@
-"use client";
+'use client';
 import './styles.css';
 import { useStateWithHistory } from './useStateWithHistory';
 
 export default function App() {
-	const [color, push, undo, redo, reset, goTo] = useStateWithHistory(
+	const {state: color, push, undo, redo, reset, goTo, isLoading} = useStateWithHistory(
 		'#ffffff',
-		3,
+		10,
 		'color-history'
 	) ?? ['#ffffff'];
+
+	if (isLoading) {
+		return <div>Loading...</div>; // Or a skeleton
+	}
 
 	return (
 		<div style={{ ...styles.container, backgroundColor: color }}>

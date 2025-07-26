@@ -12,96 +12,125 @@ import { QuestionData } from './api/questions';
 
 const TOTAL_QUESTION = 5;
 
-/*
-1. Fetch and display one question at a time using the `fetchQuestion` function.
-While the question is loading, render the `Loader` component.
-
-2. If the user selects an answer **before time runs out:
-* Disable further input.
-* Call the `validateAnswer` API to check if the answer is correct.
-* Then move to the **next question** automatically.
-* If all questions are completed render `Finished` component
-
-3. Render Scores component by passing accurate values of:
-* ✅ Correct answers
-* ❌ Incorrect answers
-
-4. Show a 5-second countdown timer for each question.
-If time runs out before the user selects an answer:
-* Mark the question as `skipped`.
-* Automatically move to the `next question`.
-
-Track and display `Skipped` questions count
-
-----
-Do NOT make any changes in any file other than App.tsx
-*/
-
 const App = ({ maxTimePerQuestion = 5 }) => {
-	const [isLoading, setIsLoading] = useState(false);
-	const [count, setCount] = useState(0);
+	const [isLoading, setIsLoading] = useState(true);
+	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 	const [remainingTime, setRemainingTime] = useState(maxTimePerQuestion);
-	const [data, setData] = useState<QuestionData | null>(null);
+	const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null);
+	const [isAnswered, setIsAnswered] = useState(false);
 	const [stats, setStats] = useState({
 		correct: 0,
 		incorrect: 0,
 		skipped: 0,
 	});
-	const intervalId = useRef<NodeJS.Timeout | null>(null);
+	const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-	useEffect(() => {
-		if (intervalId.current) return;
-
-		intervalId.current = setInterval(() => {
-			setRemainingTime((prev: number) => --prev);
-		}, 1000);
+	// Move to next question
+	const moveToNextQuestion = useCallback(() => {
+		setCurrentQuestionIndex((prev) => prev + 1);
 	}, []);
 
-	const fetchData = useCallback(async (id: number) => {
-		setIsLoading(true);
-		const result = await fetchQuestion(id);
-		setIsLoading(false);
-		setRemainingTime(() => maxTimePerQuestion);
-		setData(result);
-	}, [maxTimePerQuestion]);
+	// Stop timer
+	const stopTimer = useCallback(() => {
+		if (timerRef.current) {
+			clearInterval(timerRef.current);
+			timerRef.current = null;
+		}
+	}, []);
 
+	// Start/restart timer
+	const startTimer = useCallback(() => {
+		// Clear existing timer
+		stopTimer();
+
+		timerRef.current = setInterval(() => {
+			setRemainingTime((prev) => {
+				if (prev <= 1) {
+					// Time's up - mark as skipped and move to next
+					setStats((prevStats) => ({
+						...prevStats,
+						skipped: prevStats.skipped + 1,
+					}));
+					moveToNextQuestion();
+					return 0;
+				}
+				return prev - 1;
+			});
+		}, 1000);
+	}, [moveToNextQuestion, stopTimer]);
+
+	// Load question data
+	const loadQuestion = useCallback(
+		async (questionIndex: number) => {
+			if (questionIndex >= TOTAL_QUESTION) return;
+
+			setIsLoading(true);
+			setIsAnswered(false);
+			stopTimer(); // Stop any existing timer
+
+			try {
+				const questionData = await fetchQuestion(questionIndex);
+				setCurrentQuestion(questionData);
+				setRemainingTime(maxTimePerQuestion);
+
+				// Start timer immediately after question is loaded
+				setIsLoading(false);
+				startTimer();
+			} catch (error) {
+				console.error('Failed to fetch question:', error);
+				setIsLoading(false);
+			}
+		},
+		[maxTimePerQuestion, stopTimer, startTimer]
+	);
+
+	// Handle answer selection
+	const handleSelect = useCallback(
+		async (selectedAnswer: string) => {
+			if (!currentQuestion || isAnswered) return;
+
+			setIsAnswered(true);
+			stopTimer();
+
+			try {
+				const isCorrect = await validateAnswer(
+					selectedAnswer,
+					currentQuestion.correct
+				);
+
+				setStats((prevStats) => ({
+					...prevStats,
+					correct: isCorrect ? prevStats.correct + 1 : prevStats.correct,
+					incorrect: isCorrect ? prevStats.incorrect : prevStats.incorrect + 1,
+				}));
+
+				// Move to next question after a brief delay
+				setTimeout(() => {
+					moveToNextQuestion();
+				}, 500);
+			} catch (error) {
+				console.error('Failed to validate answer:', error);
+				setIsAnswered(false);
+			}
+		},
+		[currentQuestion, isAnswered, stopTimer, moveToNextQuestion]
+	);
+
+	// Load question when index changes
 	useEffect(() => {
-		fetchData(count);
-		if (count === TOTAL_QUESTION) {
-			intervalId.current && clearInterval(intervalId.current);
-		}
-	}, [count]);
+		loadQuestion(currentQuestionIndex);
+	}, [currentQuestionIndex, loadQuestion]);
 
+	// Cleanup timer on unmount
 	useEffect(() => {
-		if (remainingTime === 0) {
-			setStats((prev) => ({
-				...prev,
-				skipped: prev.skipped + 1,
-			}));
-			setCount((prev) => ++prev);
-		}
-	}, [remainingTime]);
+		return () => stopTimer();
+	}, [stopTimer]);
 
-	const handleSelect = async (value: string) => {
-		if (!data) return;
-		const result = await validateAnswer(value, data.correct);
-		if (result === true) {
-			setStats((prev) => ({
-				...prev,
-				correct: prev.correct + 1,
-			}));
-		} else {
-			setStats((prev) => ({
-				...prev,
-				incorrect: prev.incorrect + 1,
-			}));
-		}
-		setCount((prev) => ++prev);
-	};
-
-	if (isLoading) {
+	if (isLoading && currentQuestionIndex < TOTAL_QUESTION) {
 		return <Loader />;
 	}
+
+	const isQuizFinished = currentQuestionIndex >= TOTAL_QUESTION;
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-blue-50 to-white px-4 py-8">
@@ -115,20 +144,23 @@ const App = ({ maxTimePerQuestion = 5 }) => {
 					skipped={stats.skipped}
 				/>
 				<div className="space-y-4">
-					<div className="text-right text-sm text-gray-600">
-						⏳ Time Left: <span className="font-semibold">{remainingTime}s</span>
-					</div>
-					{(count < TOTAL_QUESTION && data) ? (
+					{!isQuizFinished && (
+						<div className="text-right text-sm text-gray-600">
+							⏳ Time Left:{' '}
+							<span className="font-semibold">{remainingTime}s</span>
+						</div>
+					)}
+					{isQuizFinished ? (
+						<Finished />
+					) : currentQuestion ? (
 						<QuestionCard
-							question={data.question}
-							options={data.options || []}
-							disabled={false}
+							question={currentQuestion.question}
+							options={currentQuestion.options || []}
+							disabled={isAnswered}
 							onSelect={handleSelect}
 							selected={undefined}
 						/>
-					) : (
-						<Finished />
-					)}
+					) : null}
 				</div>
 			</div>
 		</div>
