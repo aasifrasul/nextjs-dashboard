@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+"use client";
+import { useRef, useEffect, useCallback } from 'react';
 
 interface ReturnType {
 	count: number;

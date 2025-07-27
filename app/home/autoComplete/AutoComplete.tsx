@@ -25,6 +25,7 @@ const DEBOUNCE_DELAY = 250;
 export default function AutoComplete() {
 	const dispatch = useAppDispatch();
 	const queryClient = useQueryClient();
+	const timeoutId = useRef<NodeJS.Timeout>(null);
 
 	// Client state from Redux
 	const { searchText, isModalOpen, currentItem } = useAppSelector(
@@ -55,8 +56,19 @@ export default function AutoComplete() {
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value || '';
-		dispatch(setSearchText(value));
+		value && debounceSearchText(value);
 	};
+
+	const debounceSearchText = useCallback((text: string) => {
+		if (timeoutId.current) {
+			clearTimeout(timeoutId.current);
+			timeoutId.current = null;
+		}
+
+		timeoutId.current = setTimeout(() => {
+			dispatch(setSearchText(text));
+		})
+	}, [dispatch, setSearchText]);
 
 	const handleItemClick = (index: number) => {
 		const selectedItem = companies[index];
