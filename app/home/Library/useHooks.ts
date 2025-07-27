@@ -27,11 +27,11 @@ export function useLibrary() {
 			return;
 		}
 
-		const data = { title, author }
+		const data = { title, author };
 
-		editingBook ?
-			updateBookMutation.mutate({ id: editingBook.id, data }) :
-			createBookMutation.mutate({ ...data, issued: false });
+		editingBook
+			? updateBookMutation.mutate({ id: editingBook.id, data })
+			: createBookMutation.mutate({ ...data, issued: false });
 	};
 
 	const handleEditBook = (book: Book) => {

@@ -103,7 +103,7 @@ export function useStateWithHistory(initialState: any, capacity: number, storage
 		(value: any) => {
 			dispatch({ type: 'PUSH', value, capacity });
 		},
-		[capacity]
+		[capacity],
 	);
 
 	const undo = useCallback(() => {

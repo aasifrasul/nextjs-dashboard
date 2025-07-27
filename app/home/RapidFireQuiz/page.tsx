@@ -81,7 +81,7 @@ const App = ({ maxTimePerQuestion = 5 }) => {
 				setIsLoading(false);
 			}
 		},
-		[maxTimePerQuestion, stopTimer, startTimer]
+		[maxTimePerQuestion, stopTimer, startTimer],
 	);
 
 	// Handle answer selection
@@ -95,7 +95,7 @@ const App = ({ maxTimePerQuestion = 5 }) => {
 			try {
 				const isCorrect = await validateAnswer(
 					selectedAnswer,
-					currentQuestion.correct
+					currentQuestion.correct,
 				);
 
 				setStats((prevStats) => ({
@@ -113,7 +113,7 @@ const App = ({ maxTimePerQuestion = 5 }) => {
 				setIsAnswered(false);
 			}
 		},
-		[currentQuestion, isAnswered, stopTimer, moveToNextQuestion]
+		[currentQuestion, isAnswered, stopTimer, moveToNextQuestion],
 	);
 
 	// Load question when index changes
