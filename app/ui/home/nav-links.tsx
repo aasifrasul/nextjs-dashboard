@@ -9,6 +9,11 @@ import clsx from 'clsx';
 // Depending on the size of the application, this would be stored in a database.
 const links = [
 	{
+		name: 'Market Seasonality Explorer',
+		href: '/home/MarketSeasonalityExplorer',
+		icon: DocumentDuplicateIcon,
+	},
+	{
 		name: 'Library',
 		href: '/home/Library',
 		icon: DocumentDuplicateIcon,

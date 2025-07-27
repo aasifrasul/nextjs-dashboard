@@ -1,7 +1,5 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-
 import { useSearchParams } from '../../hooks/';
 
 import styles from './ImageGallery.module.css';

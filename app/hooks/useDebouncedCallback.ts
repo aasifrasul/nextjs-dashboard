@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useCallback, useEffect, useRef } from 'react';
 
 export function useDebouncedCallback<A extends any[]>(

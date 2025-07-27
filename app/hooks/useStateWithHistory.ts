@@ -40,7 +40,7 @@ export function useStateWithHistory(initialState: any, capacity: number, storage
 				console.warn(`Failed to save to storage key "${storageKey}":`, error);
 			}
 		},
-		[storageKey]
+		[storageKey],
 	);
 
 	// Initialize state from storage or use initial values
@@ -81,7 +81,7 @@ export function useStateWithHistory(initialState: any, capacity: number, storage
 				return newQueue;
 			});
 		},
-		[capacity, currentIndex]
+		[capacity, currentIndex],
 	);
 
 	const undo = useCallback(() => {
@@ -103,7 +103,7 @@ export function useStateWithHistory(initialState: any, capacity: number, storage
 				setCurrentIndex(index);
 			}
 		},
-		[queue.length]
+		[queue.length],
 	);
 
 	// Clear storage function (bonus utility)

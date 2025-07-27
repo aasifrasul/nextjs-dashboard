@@ -59,16 +59,19 @@ export default function AutoComplete() {
 		value && debounceSearchText(value);
 	};
 
-	const debounceSearchText = useCallback((text: string) => {
-		if (timeoutId.current) {
-			clearTimeout(timeoutId.current);
-			timeoutId.current = null;
-		}
+	const debounceSearchText = useCallback(
+		(text: string) => {
+			if (timeoutId.current) {
+				clearTimeout(timeoutId.current);
+				timeoutId.current = null;
+			}
 
-		timeoutId.current = setTimeout(() => {
-			dispatch(setSearchText(text));
-		})
-	}, [dispatch, setSearchText]);
+			timeoutId.current = setTimeout(() => {
+				dispatch(setSearchText(text));
+			});
+		},
+		[dispatch, setSearchText],
+	);
 
 	const handleItemClick = (index: number) => {
 		const selectedItem = companies[index];
