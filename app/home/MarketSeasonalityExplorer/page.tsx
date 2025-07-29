@@ -39,7 +39,6 @@ const App: React.FC = () => {
 	const { getDayData, filteredData } = useMarketData(currentDate, filters);
 	const { realtimeData, isLoading } = useRealtimeData(selectedInstrument);
 
-	// Pass the state setters to the keyboard hook
 	useKeyboardNavigation(selectedDate, setSelectedDate, setSelectedRange);
 
 	return (

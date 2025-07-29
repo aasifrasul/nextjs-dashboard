@@ -1,16 +1,11 @@
-import {
-	isDateInRange,
-	getVolatilityColor,
-	getPerformanceIcon,
-	isToday,
-	isFocused,
-	isSelected,
-} from '../utils';
+import { isDateInRange, getVolatilityColor, isToday, isFocused, isSelected } from '../utils';
+import { getPerformanceIcon } from './helpers';
 
-import { DateRange } from '../types';
+import { DateRange, DayData } from '../types';
+
 interface CalendarDayProps {
 	date: Date;
-	dayData: any;
+	dayData: DayData;
 	today: Date;
 	selectedDate: Date | null;
 	selectedRange: DateRange | null;

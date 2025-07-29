@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Minus, BarChart3, Activity } from 'lucide-react';
+import { TrendingUp, BarChart3, Activity } from 'lucide-react';
 
 import {
 	VolatilityColorMap,
@@ -12,24 +12,16 @@ import {
 	VolumeProfile,
 } from './types';
 
-export const getVolatilityColor = (volatility: number): string => {
-	const colorMap: VolatilityColorMap = {
-		0: 'from-green-700 to-green-600',
-		1: 'from-yellow-700 to-yellow-600',
-		2: 'from-red-700 to-red-600',
-	};
-	return colorMap[volatility] || 'from-gray-700 to-gray-600';
+export const isToday = (date: Date, today: Date): boolean => {
+	return date.toDateString() === today.toDateString();
 };
 
-export const getPerformanceIcon = (performance: number): React.ReactElement => {
-	switch (performance) {
-		case 1:
-			return <TrendingUp className="w-3 h-3 text-green-400" />;
-		case -1:
-			return <TrendingDown className="w-3 h-3 text-red-400" />;
-		default:
-			return <Minus className="w-3 h-3 text-gray-400" />;
-	}
+export const isSelected = (date: Date, selectedDate: Date | null): boolean => {
+	return selectedDate ? date.toDateString() === selectedDate.toDateString() : false;
+};
+
+export const isFocused = (date: Date, focusedDate: Date | null): boolean => {
+	return focusedDate ? date.toDateString() === focusedDate.toDateString() : false;
 };
 
 export const isDateInRange = (date: Date, selectedRange: DateRange | null): boolean => {
@@ -61,6 +53,15 @@ export const formatVolume = (volume: string | undefined): string => {
 
 export const formatPrice = (price: string | undefined): string => {
 	return price ? `$${price}` : '$0.00';
+};
+
+export const getVolatilityColor = (volatility: number): string => {
+	const colorMap: VolatilityColorMap = {
+		0: 'from-green-700 to-green-600',
+		1: 'from-yellow-700 to-yellow-600',
+		2: 'from-red-700 to-red-600',
+	};
+	return colorMap[volatility] || 'from-gray-700 to-gray-600';
 };
 
 export const getRSIStatus = (rsi: string): { label: string; className: string } => {
@@ -135,18 +136,6 @@ export const getPriceHistoryData = (
 	return priceHistoryData;
 };
 
-export const isToday = (date: Date, today: Date): boolean => {
-	return date.toDateString() === today.toDateString();
-};
-
-export const isSelected = (date: Date, selectedDate: Date | null): boolean => {
-	return selectedDate ? date.toDateString() === selectedDate.toDateString() : false;
-};
-
-export const isFocused = (date: Date, focusedDate: Date | null): boolean => {
-	return focusedDate ? date.toDateString() === focusedDate.toDateString() : false;
-};
-
 export const simulateMarketData = (year: number, month: number): MonthData => {
 	const daysInMonth = new Date(year, month + 1, 0).getDate();
 	const newData: MonthData = {};
@@ -200,4 +189,31 @@ export const simulateMarketData = (year: number, month: number): MonthData => {
 		};
 	}
 	return newData;
+};
+
+export const fetchMetrics = (dayData: DayData) => {
+	const changePercent = parseFloat(dayData.changePercent);
+
+	return [
+		{
+			label: 'Daily Change',
+			value: `${dayData.changePercent}%`,
+			className: changePercent >= 0 ? 'text-green-400' : 'text-red-400',
+		},
+		{
+			label: 'Volume',
+			value: formatVolume(dayData.volume),
+			className: 'text-gray-200',
+		},
+		{
+			label: 'Volatility',
+			value: getVolatilityLabel(dayData.volatility),
+			className: 'text-gray-200',
+		},
+		{
+			label: 'Liquidity',
+			value: `${dayData.liquidity}M`,
+			className: 'text-gray-200',
+		},
+	];
 };

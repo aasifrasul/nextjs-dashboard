@@ -1,30 +1,10 @@
-import { formatVolume, getVolatilityLabel } from '../utils';
+import { useMemo } from 'react';
+
+import { fetchMetrics } from '../utils';
 import { DayData } from '../types';
 
 export const PerformanceMetrics = ({ dayData }: { dayData: DayData }) => {
-	const metrics = [
-		{
-			label: 'Daily Change',
-			value: `${dayData.changePercent}%`,
-			className:
-				parseFloat(dayData.changePercent) >= 0 ? 'text-green-400' : 'text-red-400',
-		},
-		{
-			label: 'Volume',
-			value: formatVolume(dayData.volume),
-			className: 'text-gray-200',
-		},
-		{
-			label: 'Volatility',
-			value: getVolatilityLabel(dayData.volatility),
-			className: 'text-gray-200',
-		},
-		{
-			label: 'Liquidity',
-			value: `${dayData.liquidity}M`,
-			className: 'text-gray-200',
-		},
-	];
+	const metrics = useMemo(() => fetchMetrics(dayData), [dayData]);
 
 	return (
 		<div className="bg-gray-700/30 rounded-lg p-4">

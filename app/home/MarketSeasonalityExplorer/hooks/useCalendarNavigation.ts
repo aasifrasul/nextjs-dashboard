@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+
+import { useKeyboardDateNavigation } from './useKeyboardDateNavigation';
 
 export const useCalendarNavigation = (
 	currentDate: Date,
@@ -12,50 +14,17 @@ export const useCalendarNavigation = (
 	const year = currentDate.getFullYear();
 	const month = currentDate.getMonth();
 
-	// Keyboard navigation
-	useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (!focusedDate) return;
-
-			let newDate = new Date(focusedDate);
-
-			switch (event.key) {
-				case 'ArrowLeft':
-					event.preventDefault();
-					newDate.setDate(newDate.getDate() - 1);
-					break;
-				case 'ArrowRight':
-					event.preventDefault();
-					newDate.setDate(newDate.getDate() + 1);
-					break;
-				case 'ArrowUp':
-					event.preventDefault();
-					newDate.setDate(newDate.getDate() - 7);
-					break;
-				case 'ArrowDown':
-					event.preventDefault();
-					newDate.setDate(newDate.getDate() + 7);
-					break;
-				case 'Enter':
-					event.preventDefault();
-					handleDateClick(focusedDate);
-					break;
-				case 'Escape':
-					event.preventDefault();
-					setFocusedDate(null);
-					break;
-				default:
-					return;
-			}
-
-			if (newDate.getMonth() === month && newDate.getFullYear() === year) {
-				setFocusedDate(newDate);
-			}
-		};
-
-		document.addEventListener('keydown', handleKeyDown);
-		return () => document.removeEventListener('keydown', handleKeyDown);
-	}, [focusedDate, month, year, handleDateClick]);
+	// Use the shared keyboard navigation
+	useKeyboardDateNavigation(
+		focusedDate,
+		setFocusedDate,
+		() => setFocusedDate(null), // onEscape
+		handleDateClick, // onEnter
+		{
+			allowedMonth: month,
+			allowedYear: year,
+		},
+	);
 
 	const handleMonthNavigation = useCallback(
 		(direction: 'prev' | 'next') => {
