@@ -27,12 +27,6 @@ export const useAppControls = () => {
 		);
 	};
 
-	// The issue with the type comes from this function signature
-	// The function passed to `handleDateClick` needs to be able to accept `null`
-	// However, the `handleDateClick` is specifically for calendar clicks,
-	// which always have a date. The keyboard navigation hook, though,
-	// also needs to be able to clear the selection. So, we'll
-	// create a new, dedicated `handleClearSelection` handler.
 	const handleDateClick = useCallback(
 		(date: Date) => {
 			if (isSelectionMode && selectedRange?.start && !selectedRange.end) {

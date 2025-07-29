@@ -1,38 +1,16 @@
-import { formatPrice, getRSIStatus, calculateSupportResistance } from '../utils';
+import { useMemo } from 'react';
+
+import { formatPrice, calculateSupportResistance } from '../utils';
 import { DayData } from '../types';
+
+import { getIndicators } from './helper';
 
 interface TechnicalIndicatorsProps {
 	dayData: DayData;
 }
 
 export const TechnicalIndicators: React.FC<TechnicalIndicatorsProps> = ({ dayData }) => {
-	const indicators = [
-		{
-			label: 'RSI (14)',
-			value: dayData.rsi,
-			extra: (
-				<div
-					className={`px-2 py-1 rounded text-xs font-medium ${
-						getRSIStatus(dayData.rsi).className
-					}`}
-				>
-					{getRSIStatus(dayData.rsi).label}
-				</div>
-			),
-		},
-		{
-			label: 'SMA (20)',
-			value: formatPrice(dayData.sma20),
-		},
-		{
-			label: 'VWAP',
-			value: formatPrice(dayData.vwap),
-		},
-		{
-			label: 'Volatility Index',
-			value: dayData.volatilityIndex,
-		},
-	];
+	const indicators = useMemo(() => getIndicators(dayData), [dayData]);
 
 	const levels = calculateSupportResistance(dayData.high, dayData.low);
 
