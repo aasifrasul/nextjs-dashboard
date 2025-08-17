@@ -78,10 +78,7 @@ export function useStateWithHistory(initialState: any, capacity: number, storage
 		if (!storageKey || !isInitialized) return;
 
 		try {
-			await storage.setItem(storageKey, {
-				currentIndex,
-				queue,
-			});
+			await storage.setItem(storageKey, { currentIndex, queue });
 		} catch (err) {
 			console.error('Error saving to storage:', err);
 		}
@@ -103,7 +100,7 @@ export function useStateWithHistory(initialState: any, capacity: number, storage
 		(value: any) => {
 			dispatch({ type: 'PUSH', value, capacity });
 		},
-		[capacity],
+		[capacity]
 	);
 
 	const undo = useCallback(() => {

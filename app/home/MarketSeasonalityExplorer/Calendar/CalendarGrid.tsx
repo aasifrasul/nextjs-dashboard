@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { CalendarDay } from './CalendarDay';
-import { DateRange, FilteredData, ViewMode, GetDayData } from '../types';
+import { DateRange, FilteredData, ViewMode, GetDayData, DayData } from '../types';
 
 interface CalendarGridProps {
 	currentDate: Date;
@@ -86,7 +86,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 		}
 
 		const date = new Date(year, month, day);
-		const dayData = getDayData(year, month, day);
+		const dayData: DayData | undefined = getDayData(year, month, day);
 		const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(
 			2,
 			'0',

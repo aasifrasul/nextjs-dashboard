@@ -21,10 +21,6 @@ export function historyReducer(state: HistoryState, action: HistoryAction): Hist
 			// Trim queue if it exceeds capacity
 			if (newQueue.length > action.capacity) {
 				newQueue.shift();
-				return {
-					queue: newQueue,
-					currentIndex: newQueue.length - 1,
-				};
 			}
 
 			return {

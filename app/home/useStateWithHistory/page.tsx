@@ -1,6 +1,8 @@
 'use client';
-import './styles.css';
+
 import { useStateWithHistory } from './useStateWithHistory';
+
+import './styles.css';
 
 export default function App() {
 	const {

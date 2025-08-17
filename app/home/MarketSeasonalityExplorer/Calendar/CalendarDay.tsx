@@ -5,7 +5,7 @@ import { DateRange, DayData } from '../types';
 
 interface CalendarDayProps {
 	date: Date;
-	dayData: DayData;
+	dayData: DayData | undefined;
 	today: Date;
 	selectedDate: Date | null;
 	selectedRange: DateRange | null;
