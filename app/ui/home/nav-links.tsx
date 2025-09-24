@@ -59,6 +59,11 @@ const links = [
 		icon: DocumentDuplicateIcon,
 	},
 	{
+		name: 'Snakes And ladders',
+		href: '/home/snakes&ladders',
+		icon: DocumentDuplicateIcon,
+	},
+	{
 		name: 'Performance Hooks',
 		href: '/home/performanceHooks',
 		icon: DocumentDuplicateIcon,

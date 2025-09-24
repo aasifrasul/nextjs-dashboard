@@ -44,7 +44,7 @@ export function useStateWithHistory(initialState: State, limit: number, storageK
 				console.log('Some Error', err);
 			}
 		},
-		[storageKey]
+		[storageKey],
 	);
 
 	useEffect(() => {
@@ -68,12 +68,12 @@ export function useStateWithHistory(initialState: State, limit: number, storageK
 
 				newStore.push(newState);
 				setCurrentIndex((prevIndex: number) =>
-					Math.min(newStore.length - 1, prevIndex + 1)
+					Math.min(newStore.length - 1, prevIndex + 1),
 				);
 				return newStore;
 			});
 		},
-		[currentIndex]
+		[currentIndex],
 	);
 
 	const undo = useCallback(() => {
@@ -93,7 +93,7 @@ export function useStateWithHistory(initialState: State, limit: number, storageK
 		(index: number) => {
 			if (index >= 0 && index < store.length) setCurrentIndex(() => index);
 		},
-		[store.length]
+		[store.length],
 	);
 
 	const clearStorage = useCallback(() => {}, []);
