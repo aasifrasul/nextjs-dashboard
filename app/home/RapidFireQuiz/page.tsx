@@ -5,10 +5,8 @@ import Loader from './components/Loader';
 import Scores from './components/Scores';
 import Finished from './components/Finished';
 
-import { fetchQuestion } from './api/questions';
+import { fetchQuestion, QuestionData } from './api/questions';
 import { validateAnswer } from './api/validate';
-
-import { QuestionData } from './api/questions';
 
 const TOTAL_QUESTION = 5;
 

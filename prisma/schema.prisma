@@ -21,7 +21,7 @@ model TEST_USERS {
   age        Int?
 }
 
-model book_store {
+model books {
   id     String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   title  String? @db.VarChar(4000)
   author String? @db.VarChar(4000)

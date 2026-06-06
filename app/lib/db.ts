@@ -19,7 +19,7 @@ const getConnectionString = (url: string): string => {
 };
 
 const connectionString: string =
-	process.env.POSTGRES_URL_POOLED || process.env.POSTGRES_URL || '';
+	process.env.POSTGRES_URL_POOLED || process.env.DATABASE_URL || '';
 
 export const sql = postgres(getConnectionString(connectionString), {
 	ssl: process.env.NODE_ENV === 'production' ? 'require' : false,
